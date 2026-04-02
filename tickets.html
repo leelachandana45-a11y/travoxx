@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Tickets | Travox</title>
+    <link rel="stylesheet" href="feature.css">
+
+    <style>
+        .filters {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .filters button {
+            background: #d2b48c;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .filters button.active {
+            background: #8B4513;
+            color: white;
+        }
+
+        .ticket {
+            background: #fffaf3;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transition: 0.3s;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.4s forwards;
+        }
+
+        .ticket:hover {
+            transform: translateY(-5px);
+        }
+
+        .tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: green;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+        }
+
+        .book-btn {
+            margin-top: 10px;
+            background: #8B4513;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* 🔥 ROUTE IMAGE CARD */
+        .route-box {
+            margin-top: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .route-box img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .route-box:hover img {
+            transform: scale(1.05);
+        }
+
+        .route-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <h1>🎟 Book Tickets</h1>
+
+    <!-- SEARCH -->
+    <div class="search-bar">
+        <input type="text" id="from" placeholder="From (Enter any city)">
+        <input type="text" id="to" placeholder="To (Enter any city)">
+        <button onclick="searchTickets()">Search</button>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters">
+        <button onclick="applyFilter('cheapest')" id="cheapest">Cheapest</button>
+        <button onclick="applyFilter('fastest')" id="fastest">Fastest</button>
+        <button onclick="applyFilter('recommended')" id="recommended">Recommended</button>
+    </div>
+
+    <!-- 🔥 BEAUTIFUL ROUTE IMAGE -->
+    <div class="route-box">
+        <img id="routeImage" src="https://images.unsplash.com/photo-1501785888041-af3ef285b470">
+        <div class="route-overlay" id="routeText">
+            Explore routes across India 🌍
+        </div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results"></div>
+
+</div>
+
+<script>
+
+let currentData = [];
+let lastFrom = "";
+let lastTo = "";
+
+/* RANDOM NAMES */
+const trainNames = ["Shatabdi Express","Rajdhani Express","Duronto Express","Garib Rath"];
+const busNames = ["RedBus Deluxe","VRL Travels","SRS Travels","KPN Travels"];
+const flightNames = ["IndiGo 6E","Air India AI","SpiceJet SG","Vistara UK"];
+
+const baseRoutes = [
+    {type:"Train 🚆", basePrice:500, speed:60, rating:4.5},
+    {type:"Bus 🚌", basePrice:400, speed:50, rating:4.2},
+    {type:"Flight ✈️", basePrice:3000, speed:500, rating:4.8}
+];
+
+function getRandom(arr){
+    return arr[Math.floor(Math.random()*arr.length)];
+}
+
+/* DISTANCE SIMULATION */
+function getDistance(from, to){
+    return Math.abs(from.length - to.length) * 50 + 300;
+}
+
+function searchTickets(){
+
+    const from = document.getElementById("from").value.trim();
+    const to = document.getElementById("to").value.trim();
+
+    if(from === "" || to === ""){
+        alert("⚠ Enter both locations");
+        return;
+    }
+
+    lastFrom = from;
+    lastTo = to;
+
+    document.getElementById("routeText").innerHTML = `📍 ${from} → ${to}`;
+
+    // 🔥 Change image dynamically
+    document.getElementById("routeImage").src =
+        "https://source.unsplash.com/1600x600/?travel,india,city";
+
+    const distance = getDistance(from, to);
+
+    currentData = [];
+
+    baseRoutes.forEach(route=>{
+        for(let i=0;i<2;i++){
+
+            let name = "";
+
+            if(route.type.includes("Train")) name = getRandom(trainNames);
+            if(route.type.includes("Bus")) name = getRandom(busNames);
+            if(route.type.includes("Flight")) name = getRandom(flightNames);
+
+            const duration = Math.round(distance / route.speed * 60);
+            const price = Math.round(route.basePrice + (distance * 0.8));
+
+            currentData.push({
+                ...route,
+                name,
+                duration,
+                price,
+                time: generateTime()
+            });
+        }
+    });
+
+    displayTickets(currentData);
+}
+
+function generateTime(){
+    const h = Math.floor(Math.random()*12)+1;
+    const m = Math.floor(Math.random()*60);
+    const ampm = Math.random()>0.5?"AM":"PM";
+    return `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+function displayTickets(data){
+    const container = document.getElementById("results");
+    container.innerHTML = `<h3>📍 ${lastFrom} → ${lastTo}</h3>`;
+
+    const cheapest = Math.min(...data.map(d=>d.price));
+
+    data.forEach((t,i)=>{
+        container.innerHTML += `
+        <div class="ticket" style="animation-delay:${i*0.1}s">
+
+            ${t.price === cheapest ? '<div class="tag">Best Price</div>' : ''}
+
+            <h3>${t.type} - ${t.name}</h3>
+            <p><b>₹${t.price}</b></p>
+            <p>⏱ ${t.duration} mins</p>
+            <p>🕒 ${t.time}</p>
+            <p>⭐ ${t.rating}</p>
+
+            <button class="book-btn" onclick="bookNow('${t.name}')">
+                Book Now
+            </button>
+        </div>`;
+    });
+}
+
+function applyFilter(type){
+
+    document.querySelectorAll(".filters button").forEach(b=>b.classList.remove("active"));
+    document.getElementById(type).classList.add("active");
+
+    let sorted = [...currentData];
+
+    if(type === "cheapest"){
+        sorted.sort((a,b)=>a.price - b.price);
+    }
+    else if(type === "fastest"){
+        sorted.sort((a,b)=>a.duration - b.duration);
+    }
+    else{
+        sorted.sort((a,b)=>b.rating - a.rating);
+    }
+
+    displayTickets(sorted);
+}
+
+function bookNow(name){
+    alert(`✅ Ticket booked for ${name}\n📍 ${lastFrom} → ${lastTo}`);
+}
+
+</script>
+
+</body>
+</html>

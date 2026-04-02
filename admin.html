@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>TRAVOX Admin Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Nunito:wght@400;500;600;700;800&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f5efe6;
+  --brown:#8b4513;
+  --brown-dark:#6b3410;
+  --brown-mid:#a0522d;
+  --cream:#fdf6ee;
+  --gold:#c9a84c;
+  --gold-light:#f0d890;
+  --text:#3b2a1a;
+  --muted:#9c7b5c;
+  --border:#e8d5be;
+  --sidebar-w:240px;
+  --green:#2e7d32;
+  --red:#c62828;
+  --orange:#e65100;
+}
+
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;}
+
+/* ── TOAST ── */
+#toast{position:fixed;top:20px;right:20px;z-index:9999;padding:13px 20px;border-radius:12px;font-size:13px;font-weight:700;color:#fff;opacity:0;transform:translateY(-10px);transition:all .3s cubic-bezier(.4,0,.2,1);pointer-events:none;max-width:300px}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.success{background:#2e7d32}
+#toast.error{background:#c62828}
+#toast.info{background:var(--brown)}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:linear-gradient(180deg,var(--brown-dark) 0%,var(--brown) 60%,#a0522d 100%);
+  min-height:100vh;display:flex;flex-direction:column;
+  position:fixed;left:0;top:0;bottom:0;z-index:100;
+  box-shadow:4px 0 24px rgba(0,0,0,0.15);
+}
+.sidebar-brand{
+  padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1);
+  display:flex;align-items:center;gap:10px;
+}
+.sidebar-brand .logo{
+  width:38px;height:38px;background:var(--gold);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+}
+.sidebar-brand .name{
+  font-family:'Playfair Display',serif;font-size:18px;color:#fff;font-weight:700;letter-spacing:0.5px;
+}
+.sidebar-brand .name span{color:var(--gold-light)}
+
+nav{flex:1;padding:14px 0;overflow-y:auto}
+.nav-section{
+  font-size:10px;font-weight:800;color:rgba(255,255,255,0.35);
+  letter-spacing:1.5px;text-transform:uppercase;padding:12px 20px 6px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:11px 20px;
+  cursor:pointer;color:rgba(255,255,255,0.75);font-size:13.5px;font-weight:600;
+  transition:all .2s;border-left:3px solid transparent;margin:1px 0;
+}
+.nav-item:hover{background:rgba(255,255,255,0.08);color:#fff;border-left-color:rgba(255,255,255,0.3)}
+.nav-item.active{background:rgba(255,255,255,0.14);color:#fff;border-left-color:var(--gold);font-weight:700}
+.nav-item .icon{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+
+.sidebar-footer{padding:16px 20px;border-top:1px solid rgba(255,255,255,0.1)}
+.admin-info{display:flex;align-items:center;gap:10px}
+.admin-avatar{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--gold);display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:800;color:var(--brown-dark);flex-shrink:0;
+}
+.admin-name{font-size:12px;color:rgba(255,255,255,0.85);font-weight:700}
+.admin-role{font-size:11px;color:rgba(255,255,255,0.4)}
+
+/* ── MAIN ── */
+.main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* HEADER */
+header{
+  background:var(--cream);border-bottom:1px solid var(--border);
+  padding:0 28px;height:64px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 2px 12px rgba(139,69,19,0.08);
+}
+.header-left h1{font-family:'Playfair Display',serif;font-size:20px;color:var(--brown-dark)}
+.header-left p{font-size:12px;color:var(--muted)}
+.header-right{display:flex;align-items:center;gap:14px}
+.notif-btn{
+  position:relative;width:36px;height:36px;border-radius:10px;
+  background:var(--bg);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px;
+  transition:.2s;
+}
+.notif-btn:hover{background:var(--border)}
+.notif-badge{
+  position:absolute;top:-4px;right:-4px;width:17px;height:17px;border-radius:50%;
+  background:var(--red);color:#fff;font-size:9px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+}
+.logout-btn{
+  padding:8px 18px;border-radius:10px;
+  background:var(--brown);color:#fff;border:none;
+  font-size:13px;font-weight:700;font-family:'Nunito',sans-serif;
+  cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;
+}
+.logout-btn:hover{background:var(--brown-dark)}
+
+/* PAGE CONTENT */
+.page{display:none;padding:28px;animation:fadeIn .3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.page-title{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+
+/* ── CARDS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{
+  background:var(--cream);border:1px solid var(--border);border-radius:16px;
+  padding:20px;box-shadow:0 2px 12px rgba(139,69,19,0.07);
+  transition:.25s;
+}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(139,69,19,0.13)}
+.stat-card .sc-label{font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.stat-card .sc-val{font-size:28px;font-weight:800;color:var(--brown-dark);margin:4px 0}
+.stat-card .sc-icon{font-size:28px;margin-bottom:8px}
+.stat-card .sc-trend{font-size:12px;color:#2e7d32;font-weight:700}
+.stat-card .sc-trend.down{color:var(--red)}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--cream);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:24px;box-shadow:0 2px 12px rgba(139,69,19,0.07)}
+.table-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.table-header h3{font-size:15px;font-weight:800;color:var(--brown-dark)}
+.search-input{
+  padding:8px 14px 8px 34px;border:1px solid var(--border);border-radius:10px;
+  background:var(--bg);font-size:13px;font-family:'Nunito',sans-serif;outline:none;
+  color:var(--text);width:200px;position:relative;transition:.2s;
+}
+.search-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.15)}
+.search-wrap{position:relative}
+.search-wrap::before{content:'🔍';position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;pointer-events:none}
+
+table{width:100%;border-collapse:collapse}
+th{background:rgba(139,69,19,0.06);padding:12px 18px;text-align:left;font-size:11px;font-weight:800;color:var(--brown);letter-spacing:.6px;text-transform:uppercase}
+td{padding:13px 18px;border-top:1px solid var(--border);font-size:13px;vertical-align:middle}
+tr:hover td{background:rgba(139,69,19,0.03)}
+
+.status-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  padding:4px 10px;border-radius:20px;font-size:11px;font-weight:800;letter-spacing:.3px;
+}
+.status-badge.active{background:#e8f5e9;color:#2e7d32}
+.status-badge.blocked{background:#ffebee;color:#c62828}
+.status-badge.pending{background:#fff3e0;color:#e65100}
+.status-badge.approved{background:#e8f5e9;color:#2e7d32}
+.status-badge.rejected{background:#ffebee;color:#c62828}
+.status-badge.upcoming{background:#e3f2fd;color:#1565c0}
+.status-badge.completed{background:#e8f5e9;color:#2e7d32}
+.status-badge.cancelled{background:#ffebee;color:#c62828}
+.status-badge.resolved{background:#e8f5e9;color:#2e7d32}
+.status-badge.open{background:#fff3e0;color:#e65100}
+
+.btn{
+  padding:6px 14px;border-radius:8px;border:none;
+  font-size:12px;font-weight:700;font-family:'Nunito',sans-serif;
+  cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:4px;
+}
+.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+.btn-red{background:#ffebee;color:#c62828}
+.btn-green{background:#e8f5e9;color:#2e7d32}
+.btn-brown{background:var(--brown);color:#fff}
+.btn-gold{background:var(--gold);color:var(--brown-dark)}
+.btn-ghost{background:var(--bg);border:1px solid var(--border);color:var(--text)}
+.btn-sm{padding:5px 10px;font-size:11px}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.ftab{
+  padding:8px 18px;border-radius:20px;border:1px solid var(--border);
+  background:var(--cream);font-size:12px;font-weight:700;cursor:pointer;
+  color:var(--muted);transition:.2s;font-family:'Nunito',sans-serif;
+}
+.ftab:hover{border-color:var(--gold);color:var(--brown)}
+.ftab.active{background:var(--brown);color:#fff;border-color:var(--brown)}
+
+/* REVENUE BARS */
+.rev-chart{
+  background:var(--cream);border:1px solid var(--border);border-radius:16px;
+  padding:22px;margin-bottom:24px;box-shadow:0 2px 12px rgba(139,69,19,0.07);
+}
+.rev-chart h3{font-size:15px;font-weight:800;color:var(--brown-dark);margin-bottom:18px}
+.bar-grid{display:flex;align-items:flex-end;gap:10px;height:140px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1}
+.bar{width:100%;border-radius:8px 8px 0 0;background:linear-gradient(180deg,var(--gold) 0%,var(--brown) 100%);transition:all .4s cubic-bezier(.4,0,.2,1);cursor:pointer}
+.bar:hover{filter:brightness(1.1)}
+.bar-label{font-size:10px;font-weight:700;color:var(--muted)}
+.bar-val{font-size:10px;font-weight:800;color:var(--brown-dark)}
+
+/* COMPLAINT CARDS */
+.complaint-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.complaint-card{
+  background:var(--cream);border:1px solid var(--border);border-radius:14px;
+  padding:18px;box-shadow:0 2px 10px rgba(139,69,19,0.07);transition:.2s;
+}
+.complaint-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(139,69,19,0.12)}
+.complaint-card .cc-user{font-size:13px;font-weight:800;color:var(--brown-dark);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.complaint-card .cc-issue{font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5}
+.complaint-card .cc-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+/* NOTIF CARDS */
+.notif-list{display:flex;flex-direction:column;gap:12px}
+.notif-item{
+  background:var(--cream);border:1px solid var(--border);border-radius:14px;
+  padding:16px 20px;display:flex;align-items:flex-start;gap:14px;
+  box-shadow:0 2px 8px rgba(139,69,19,0.06);transition:.2s;
+}
+.notif-item:hover{transform:translateX(4px)}
+.notif-item.unread{border-left:4px solid var(--gold)}
+.notif-icon{font-size:22px;flex-shrink:0}
+.notif-body .nb-title{font-size:13px;font-weight:800;color:var(--brown-dark)}
+.notif-body .nb-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.notif-body .nb-time{font-size:11px;color:var(--muted);margin-top:4px}
+
+/* SETTINGS */
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+.settings-card{
+  background:var(--cream);border:1px solid var(--border);border-radius:16px;
+  padding:24px;box-shadow:0 2px 12px rgba(139,69,19,0.07);
+}
+.settings-card h3{font-size:15px;font-weight:800;color:var(--brown-dark);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.form-field{margin-bottom:14px}
+.form-field label{display:block;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px}
+.form-field input{
+  width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:10px;
+  background:var(--bg);font-size:13px;font-family:'Nunito',sans-serif;outline:none;color:var(--text);transition:.2s;
+}
+.form-field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,168,76,0.15)}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-info .ti-label{font-size:14px;font-weight:700;color:var(--text)}
+.toggle-info .ti-desc{font-size:12px;color:var(--muted)}
+.toggle{position:relative;width:48px;height:26px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{
+  position:absolute;inset:0;background:#ccc;border-radius:26px;cursor:pointer;transition:.3s;
+}
+.toggle-slider::before{
+  content:'';position:absolute;height:20px;width:20px;border-radius:50%;
+  background:#fff;left:3px;bottom:3px;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle input:checked + .toggle-slider{background:var(--brown)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(22px)}
+
+/* STAR RATING */
+.stars{color:var(--gold);font-size:13px}
+
+/* GUIDE CARD */
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.guide-card{
+  background:var(--cream);border:1px solid var(--border);border-radius:16px;
+  padding:20px;box-shadow:0 2px 10px rgba(139,69,19,0.07);transition:.2s;text-align:center;
+}
+.guide-card:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(139,69,19,0.13)}
+.guide-avatar{
+  width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--brown));
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  margin:0 auto 12px;
+}
+.guide-name{font-size:15px;font-weight:800;color:var(--brown-dark)}
+.guide-exp{font-size:12px;color:var(--muted);margin:3px 0}
+.guide-rating{font-size:13px;margin:6px 0}
+.guide-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+
+/* ANALYTICS */
+.analytics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.an-card{
+  background:linear-gradient(135deg,var(--cream),var(--bg));
+  border:1px solid var(--border);border-radius:16px;padding:22px;
+  display:flex;flex-direction:column;align-items:center;
+  box-shadow:0 2px 12px rgba(139,69,19,0.07);transition:.2s;text-align:center;
+}
+.an-card:hover{transform:translateY(-2px)}
+.an-card .an-icon{font-size:36px;margin-bottom:10px}
+.an-card .an-val{font-size:32px;font-weight:800;color:var(--brown-dark)}
+.an-card .an-label{font-size:12px;color:var(--muted);font-weight:700;margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.an-card .an-trend{margin-top:8px;font-size:12px;font-weight:700;color:#2e7d32}
+
+/* SECTION DIVIDER */
+.sec-divider{height:1px;background:var(--border);margin:28px 0}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px;color:var(--muted)}
+.empty-state .es-icon{font-size:48px;margin-bottom:12px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s}
+.modal{background:var(--cream);border-radius:20px;padding:28px;max-width:440px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,0.2)}
+.modal h3{font-family:'Playfair Display',serif;font-size:18px;margin-bottom:8px;color:var(--brown-dark)}
+.modal p{font-size:13px;color:var(--muted);margin-bottom:20px}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end}
+
+@media(max-width:768px){
+  .sidebar{width:64px}
+  .sidebar .nav-item span:not(.icon){display:none}
+  .sidebar .nav-section{display:none}
+  .sidebar-brand .name{display:none}
+  .sidebar .admin-name,.sidebar .admin-role{display:none}
+  .main{margin-left:64px}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">✈️</div>
+    <div class="name">TRAV<span>OX</span></div>
+  </div>
+
+  <nav>
+    <div class="nav-section">Overview</div>
+    <div class="nav-item active" onclick="showPage('overview')">
+      <span class="icon">📊</span><span>Dashboard</span>
+    </div>
+
+    <div class="nav-section">Management</div>
+    <div class="nav-item" onclick="showPage('users')">
+      <span class="icon">👥</span><span>Users</span>
+    </div>
+    <div class="nav-item" onclick="showPage('guides')">
+      <span class="icon">🧭</span><span>Guides</span>
+    </div>
+    <div class="nav-item" onclick="showPage('bookings')">
+      <span class="icon">📅</span><span>Bookings</span>
+    </div>
+
+    <div class="nav-section">Finance & Reports</div>
+    <div class="nav-item" onclick="showPage('revenue')">
+      <span class="icon">💰</span><span>Revenue</span>
+    </div>
+    <div class="nav-item" onclick="showPage('complaints')">
+      <span class="icon">🚨</span><span>Complaints</span>
+    </div>
+
+    <div class="nav-section">System</div>
+    <div class="nav-item" onclick="showPage('notifications')">
+      <span class="icon">🔔</span><span>Notifications</span>
+    </div>
+    <div class="nav-item" onclick="showPage('analytics')">
+      <span class="icon">📈</span><span>Analytics</span>
+    </div>
+    <div class="nav-item" onclick="showPage('settings')">
+      <span class="icon">⚙️</span><span>Settings</span>
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-info">
+      <div class="admin-avatar">A</div>
+      <div>
+        <div class="admin-name">Super Admin</div>
+        <div class="admin-role">Full Access</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════════ MAIN ═══════════════ -->
+<div class="main">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <h1>TRAVOX Admin Panel</h1>
+      <p id="pageSubtitle">Welcome back, Super Admin 👋</p>
+    </div>
+    <div class="header-right">
+      <div class="notif-btn" onclick="showPage('notifications')" title="Notifications">
+        🔔<span class="notif-badge" id="notifCount">3</span>
+      </div>
+      <div class="admin-avatar" style="width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--brown-dark)">A</div>
+      <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+    </div>
+  </header>
+
+  <!-- ══════════ PAGE: OVERVIEW ══════════ -->
+  <div class="page active" id="page-overview">
+    <div style="padding:28px">
+      <div class="page-title">Dashboard Overview</div>
+      <div class="page-sub">Real-time snapshot of TRAVOX platform</div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="sc-icon">👥</div>
+          <div class="sc-label">Total Users</div>
+          <div class="sc-val" id="ov-users">248</div>
+          <div class="sc-trend">▲ 12% this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">🧭</div>
+          <div class="sc-label">Active Guides</div>
+          <div class="sc-val" id="ov-guides">34</div>
+          <div class="sc-trend">▲ 5% this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">📅</div>
+          <div class="sc-label">Total Bookings</div>
+          <div class="sc-val">187</div>
+          <div class="sc-trend">▲ 8% this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">💰</div>
+          <div class="sc-label">Total Revenue</div>
+          <div class="sc-val">₹4.2L</div>
+          <div class="sc-trend">▲ 18% this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">🚨</div>
+          <div class="sc-label">Open Complaints</div>
+          <div class="sc-val" id="ov-complaints">7</div>
+          <div class="sc-trend down">▲ 2 new today</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">⭐</div>
+          <div class="sc-label">Avg Rating</div>
+          <div class="sc-val">4.6</div>
+          <div class="sc-trend">▲ 0.2 this month</div>
+        </div>
+      </div>
+
+      <!-- Quick revenue bar -->
+      <div class="rev-chart">
+        <h3>📊 Weekly Revenue Overview</h3>
+        <div class="bar-grid" id="overview-bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: USERS ══════════ -->
+  <div class="page" id="page-users">
+    <div style="padding:28px">
+      <div class="page-title">User Management</div>
+      <div class="page-sub">Manage tourists and platform users</div>
+
+      <div class="filter-tabs">
+        <button class="ftab active" onclick="filterUsers('all',this)">All Users</button>
+        <button class="ftab" onclick="filterUsers('active',this)">Active</button>
+        <button class="ftab" onclick="filterUsers('blocked',this)">Blocked</button>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <h3>👥 Tourists List</h3>
+          <div class="search-wrap">
+            <input class="search-input" placeholder="Search users…" oninput="searchUsers(this.value)">
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Name</th><th>Email</th><th>ID</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="users-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: GUIDES ══════════ -->
+  <div class="page" id="page-guides">
+    <div style="padding:28px">
+      <div class="page-title">Guide Management</div>
+      <div class="page-sub">Approve, reject and manage travel guides</div>
+
+      <div class="filter-tabs">
+        <button class="ftab active" onclick="filterGuides('all',this)">All</button>
+        <button class="ftab" onclick="filterGuides('pending',this)">Pending</button>
+        <button class="ftab" onclick="filterGuides('approved',this)">Approved</button>
+        <button class="ftab" onclick="filterGuides('rejected',this)">Rejected</button>
+      </div>
+
+      <div class="guide-grid" id="guide-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: BOOKINGS ══════════ -->
+  <div class="page" id="page-bookings">
+    <div style="padding:28px">
+      <div class="page-title">Bookings Control</div>
+      <div class="page-sub">All trip bookings across the platform</div>
+
+      <div class="filter-tabs">
+        <button class="ftab active" onclick="filterBookings('all',this)">All</button>
+        <button class="ftab" onclick="filterBookings('upcoming',this)">Upcoming</button>
+        <button class="ftab" onclick="filterBookings('completed',this)">Completed</button>
+        <button class="ftab" onclick="filterBookings('cancelled',this)">Cancelled</button>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header">
+          <h3>📅 Bookings List</h3>
+          <div class="search-wrap">
+            <input class="search-input" placeholder="Search bookings…" oninput="searchBookings(this.value)">
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Tourist</th><th>Guide</th><th>Location</th><th>Date</th><th>Amount</th><th>Status</th><th>Action</th>
+          </tr></thead>
+          <tbody id="bookings-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: REVENUE ══════════ -->
+  <div class="page" id="page-revenue">
+    <div style="padding:28px">
+      <div class="page-title">Revenue Dashboard</div>
+      <div class="page-sub">Financial overview and earnings breakdown</div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="sc-icon">💰</div>
+          <div class="sc-label">Total Revenue</div>
+          <div class="sc-val">₹4,21,500</div>
+          <div class="sc-trend">▲ 22% overall</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">📆</div>
+          <div class="sc-label">Today Revenue</div>
+          <div class="sc-val">₹12,800</div>
+          <div class="sc-trend">▲ 5% vs yesterday</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">🗓️</div>
+          <div class="sc-label">Monthly Revenue</div>
+          <div class="sc-val">₹86,400</div>
+          <div class="sc-trend">▲ 18% vs last month</div>
+        </div>
+        <div class="stat-card">
+          <div class="sc-icon">✂️</div>
+          <div class="sc-label">Platform Commission</div>
+          <div class="sc-val">₹42,150</div>
+          <div class="sc-trend">▲ 10% commission</div>
+        </div>
+      </div>
+
+      <div class="rev-chart">
+        <h3>📊 Monthly Revenue Chart (₹)</h3>
+        <div class="bar-grid" id="revenue-bars"></div>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-header"><h3>💳 Recent Transactions</h3></div>
+        <table>
+          <thead><tr><th>Tourist</th><th>Guide</th><th>Trip</th><th>Date</th><th>Amount</th><th>Commission</th></tr></thead>
+          <tbody id="transactions-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: COMPLAINTS ══════════ -->
+  <div class="page" id="page-complaints">
+    <div style="padding:28px">
+      <div class="page-title">Complaints & Reports</div>
+      <div class="page-sub">Manage user and guide issues</div>
+
+      <div class="filter-tabs">
+        <button class="ftab active" onclick="filterComplaints('all',this)">All</button>
+        <button class="ftab" onclick="filterComplaints('open',this)">Open</button>
+        <button class="ftab" onclick="filterComplaints('resolved',this)">Resolved</button>
+      </div>
+
+      <div class="complaint-grid" id="complaint-grid"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: NOTIFICATIONS ══════════ -->
+  <div class="page" id="page-notifications">
+    <div style="padding:28px">
+      <div class="page-title">Notifications Panel</div>
+      <div class="page-sub">Recent activity and system alerts</div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn btn-brown" onclick="markAllRead()">✅ Mark All Read</button>
+      </div>
+      <div class="notif-list" id="notif-list"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: ANALYTICS ══════════ -->
+  <div class="page" id="page-analytics">
+    <div style="padding:28px">
+      <div class="page-title">Analytics</div>
+      <div class="page-sub">Platform performance metrics at a glance</div>
+
+      <div class="analytics-grid">
+        <div class="an-card">
+          <div class="an-icon">👤</div>
+          <div class="an-val" id="an-users">248</div>
+          <div class="an-label">Total Users</div>
+          <div class="an-trend">▲ 12% this week</div>
+        </div>
+        <div class="an-card">
+          <div class="an-icon">🧭</div>
+          <div class="an-val" id="an-guides">34</div>
+          <div class="an-label">Active Guides</div>
+          <div class="an-trend">▲ 5% this week</div>
+        </div>
+        <div class="an-card">
+          <div class="an-icon">🗺️</div>
+          <div class="an-val">187</div>
+          <div class="an-label">Total Trips</div>
+          <div class="an-trend">▲ 8% this month</div>
+        </div>
+        <div class="an-card">
+          <div class="an-icon">⭐</div>
+          <div class="an-val">4.6</div>
+          <div class="an-label">Avg Rating</div>
+          <div class="an-trend">▲ 0.2 this month</div>
+        </div>
+        <div class="an-card">
+          <div class="an-icon">🔁</div>
+          <div class="an-val">68%</div>
+          <div class="an-label">Return Rate</div>
+          <div class="an-trend">▲ 4% this month</div>
+        </div>
+        <div class="an-card">
+          <div class="an-icon">📍</div>
+          <div class="an-val">22</div>
+          <div class="an-label">Destinations</div>
+          <div class="an-trend">▲ 3 new added</div>
+        </div>
+      </div>
+
+      <div class="rev-chart">
+        <h3>📊 User Growth Chart</h3>
+        <div class="bar-grid" id="analytics-bars"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ PAGE: SETTINGS ══════════ -->
+  <div class="page" id="page-settings">
+    <div style="padding:28px">
+      <div class="page-title">Settings</div>
+      <div class="page-sub">System configuration and preferences</div>
+
+      <div class="settings-grid">
+        <!-- Change Password -->
+        <div class="settings-card">
+          <h3>🔑 Change Password</h3>
+          <div class="form-field">
+            <label>Current Password</label>
+            <input type="password" id="cur-pass" placeholder="Enter current password">
+          </div>
+          <div class="form-field">
+            <label>New Password</label>
+            <input type="password" id="new-pass" placeholder="Enter new password">
+          </div>
+          <div class="form-field">
+            <label>Confirm Password</label>
+            <input type="password" id="conf-pass" placeholder="Confirm new password">
+          </div>
+          <button class="btn btn-brown" style="width:100%;justify-content:center;padding:11px" onclick="changePassword()">Update Password</button>
+        </div>
+
+        <!-- System Status -->
+        <div class="settings-card">
+          <h3>⚙️ System Controls</h3>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="ti-label">System Status</div>
+              <div class="ti-desc">Toggle platform active / maintenance</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="sys-toggle" checked onchange="toggleSystem()">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="ti-label">New Registrations</div>
+              <div class="ti-desc">Allow new tourist sign-ups</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="ti-label">Email Notifications</div>
+              <div class="ti-desc">Send booking alerts via email</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="ti-label">Guide Auto-Approve</div>
+              <div class="ti-desc">Skip manual approval for verified guides</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Admin Profile -->
+        <div class="settings-card">
+          <h3>👤 Admin Profile</h3>
+          <div class="form-field">
+            <label>Display Name</label>
+            <input type="text" value="Super Admin">
+          </div>
+          <div class="form-field">
+            <label>Admin Email</label>
+            <input type="email" value="admin@travox.com">
+          </div>
+          <div class="form-field">
+            <label>Contact</label>
+            <input type="text" value="+91 98765 43210">
+          </div>
+          <button class="btn btn-gold" style="width:100%;justify-content:center;padding:11px" onclick="showToast('✅ Profile updated!','success')">Save Profile</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- Modal for guide details -->
+<div id="modal-overlay" style="display:none" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="modal-title">Guide Details</h3>
+    <p id="modal-body">Details here</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════ DATA ═══════════════ */
+let users = [
+  {id:'USR001',name:'Aarav Sharma',email:'aarav@gmail.com',status:'active'},
+  {id:'USR002',name:'Priya Menon',email:'priya@gmail.com',status:'active'},
+  {id:'USR003',name:'Rohan Das',email:'rohan@gmail.com',status:'blocked'},
+  {id:'USR004',name:'Neha Kapoor',email:'neha@gmail.com',status:'active'},
+  {id:'USR005',name:'Vikas Iyer',email:'vikas@gmail.com',status:'active'},
+  {id:'USR006',name:'Sneha Pillai',email:'sneha@gmail.com',status:'blocked'},
+  {id:'USR007',name:'Arjun Bose',email:'arjun@gmail.com',status:'active'},
+];
+
+let guides = [
+  {id:'GD001',name:'Ravi Kumar',exp:'8 years',rating:4.8,status:'approved',spec:'Kerala Backwaters'},
+  {id:'GD002',name:'Anita Nair',exp:'5 years',rating:4.5,status:'pending',spec:'Rajasthan Desert Tours'},
+  {id:'GD003',name:'Suresh Babu',exp:'3 years',rating:4.2,status:'pending',spec:'Goa Beaches'},
+  {id:'GD004',name:'Deepa Patel',exp:'10 years',rating:4.9,status:'approved',spec:'Himachal Treks'},
+  {id:'GD005',name:'Kiran Rao',exp:'2 years',rating:3.8,status:'rejected',spec:'Tamil Nadu Temples'},
+  {id:'GD006',name:'Meena Joshi',exp:'6 years',rating:4.6,status:'approved',spec:'Varanasi Ghats'},
+];
+
+let bookings = [
+  {id:'BK001',tourist:'Aarav Sharma',guide:'Ravi Kumar',location:'Kerala',date:'2026-04-10',amount:'₹8,500',status:'upcoming'},
+  {id:'BK002',tourist:'Priya Menon',guide:'Deepa Patel',location:'Himachal',date:'2026-03-22',amount:'₹12,000',status:'completed'},
+  {id:'BK003',tourist:'Rohan Das',guide:'Anita Nair',location:'Rajasthan',date:'2026-04-18',amount:'₹9,200',status:'upcoming'},
+  {id:'BK004',tourist:'Neha Kapoor',guide:'Suresh Babu',location:'Goa',date:'2026-03-15',amount:'₹6,800',status:'completed'},
+  {id:'BK005',tourist:'Vikas Iyer',guide:'Meena Joshi',location:'Varanasi',date:'2026-04-05',amount:'₹7,400',status:'cancelled'},
+  {id:'BK006',tourist:'Sneha Pillai',guide:'Ravi Kumar',location:'Kerala',date:'2026-04-22',amount:'₹9,000',status:'upcoming'},
+  {id:'BK007',tourist:'Arjun Bose',guide:'Deepa Patel',location:'Manali',date:'2026-03-30',amount:'₹11,500',status:'completed'},
+];
+
+let complaints = [
+  {id:'CMP001',user:'Aarav Sharma',type:'Tourist',issue:'Guide was late by 2 hours on the scheduled tour day.',status:'open'},
+  {id:'CMP002',user:'Ravi Kumar',type:'Guide',issue:'Tourist refused to pay the agreed amount after the trip.',status:'open'},
+  {id:'CMP003',user:'Priya Menon',type:'Tourist',issue:'Accommodation quality did not match the listing description.',status:'resolved'},
+  {id:'CMP004',user:'Neha Kapoor',type:'Tourist',issue:'Booking was cancelled without prior notice from guide.',status:'open'},
+  {id:'CMP005',user:'Suresh Babu',type:'Guide',issue:'Fake review left by tourist to damage guide rating.',status:'resolved'},
+  {id:'CMP006',user:'Vikas Iyer',type:'Tourist',issue:'App crashed during booking and payment was deducted.',status:'open'},
+];
+
+let notifications = [
+  {icon:'📅',title:'New Booking',desc:'Aarav Sharma booked Ravi Kumar for Kerala tour.',time:'2 min ago',unread:true},
+  {icon:'👤',title:'New User Registered',desc:'Sneha Pillai created an account.',time:'15 min ago',unread:true},
+  {icon:'🚨',title:'New Complaint Filed',desc:'Vikas Iyer reported an app payment issue.',time:'1 hr ago',unread:true},
+  {icon:'✅',title:'Guide Approved',desc:'Meena Joshi has been approved as a guide.',time:'3 hrs ago',unread:false},
+  {icon:'💰',title:'Payment Received',desc:'₹8,500 payment confirmed for booking BK001.',time:'5 hrs ago',unread:false},
+  {icon:'⭐',title:'New Review',desc:'Ravi Kumar received a 5-star rating.',time:'Yesterday',unread:false},
+];
+
+const revMonths = ['Jan','Feb','Mar','Apr','May','Jun','Jul'];
+const revVals   = [42,58,51,73,65,88,76];
+const growVals  = [30,42,55,68,80,95,110];
+
+/* ═══════════════ UTILS ═══════════════ */
+function showToast(msg, type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='show '+type;
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>{t.className=''},3200);
+}
+
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const items = document.querySelectorAll('.nav-item');
+  items.forEach(i=>{if(i.getAttribute('onclick')?.includes("'"+name+"'"))i.classList.add('active')});
+  const titles={overview:'Dashboard Overview',users:'User Management',guides:'Guide Management',bookings:'Bookings Control',revenue:'Revenue Dashboard',complaints:'Complaints & Reports',notifications:'Notifications Panel',analytics:'Analytics',settings:'Settings'};
+  document.getElementById('pageSubtitle').textContent=titles[name]||'';
+  if(name==='users') renderUsers('all');
+  if(name==='guides') renderGuides('all');
+  if(name==='bookings') renderBookings('all');
+  if(name==='revenue') renderRevenue();
+  if(name==='complaints') renderComplaints('all');
+  if(name==='notifications') renderNotifications();
+  if(name==='overview') renderOverviewBars();
+  if(name==='analytics') renderAnalyticsBars();
+}
+
+function logout(){
+  if(confirm('Log out of TRAVOX Admin?')) window.location.href='admin-login.html';
+}
+
+/* ═══════════════ RENDER BARS ═══════════════ */
+function renderBars(containerId, labels, vals, color=''){
+  const max=Math.max(...vals);
+  const c=document.getElementById(containerId);
+  if(!c) return;
+  c.innerHTML=labels.map((l,i)=>`
+    <div class="bar-col">
+      <div class="bar-val">₹${vals[i]}k</div>
+      <div class="bar" style="height:${Math.round((vals[i]/max)*120)}px" title="${l}: ₹${vals[i]}k"></div>
+      <div class="bar-label">${l}</div>
+    </div>`).join('');
+}
+function renderBarsRaw(containerId, labels, vals){
+  const max=Math.max(...vals);
+  const c=document.getElementById(containerId);
+  if(!c) return;
+  c.innerHTML=labels.map((l,i)=>`
+    <div class="bar-col">
+      <div class="bar-val">${vals[i]}</div>
+      <div class="bar" style="height:${Math.round((vals[i]/max)*120)}px" title="${l}: ${vals[i]}"></div>
+      <div class="bar-label">${l}</div>
+    </div>`).join('');
+}
+function renderOverviewBars(){ renderBars('overview-bars',revMonths,revVals); }
+function renderRevenue(){
+  renderBars('revenue-bars',revMonths,revVals);
+  renderTransactions();
+}
+function renderAnalyticsBars(){ renderBarsRaw('analytics-bars',revMonths,growVals); }
+
+/* ═══════════════ USERS ═══════════════ */
+let userFilter='all', userSearch='';
+function renderUsers(filter=userFilter, search=userSearch){
+  userFilter=filter; userSearch=search;
+  let list=users;
+  if(filter!=='all') list=list.filter(u=>u.status===filter);
+  if(search) list=list.filter(u=>u.name.toLowerCase().includes(search.toLowerCase())||u.email.toLowerCase().includes(search.toLowerCase()));
+  const tb=document.getElementById('users-tbody');
+  if(!list.length){tb.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No users found</td></tr>`;return;}
+  tb.innerHTML=list.map(u=>`
+    <tr>
+      <td><strong>${u.name}</strong></td>
+      <td>${u.email}</td>
+      <td><code style="background:var(--bg);padding:2px 8px;border-radius:6px;font-size:11px">${u.id}</code></td>
+      <td><span class="status-badge ${u.status}">${u.status==='active'?'✅ Active':'🚫 Blocked'}</span></td>
+      <td>
+        <button class="btn btn-sm ${u.status==='active'?'btn-red':'btn-green'}" onclick="toggleUser('${u.id}')">
+          ${u.status==='active'?'🚫 Block':'✅ Unblock'}
+        </button>
+        <button class="btn btn-sm btn-ghost" onclick="deleteUser('${u.id}')" style="margin-left:6px">🗑️</button>
+      </td>
+    </tr>`).join('');
+}
+function filterUsers(f,el){
+  document.querySelectorAll('#page-users .ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); renderUsers(f,userSearch);
+}
+function searchUsers(v){ renderUsers(userFilter,v); }
+function toggleUser(id){
+  const u=users.find(x=>x.id===id);
+  if(!u) return;
+  u.status=u.status==='active'?'blocked':'active';
+  showToast(`${u.status==='active'?'✅ Unblocked':'🚫 Blocked'}: ${u.name}`,'info');
+  renderUsers();
+  document.getElementById('ov-users').textContent=users.length;
+}
+function deleteUser(id){
+  const u=users.find(x=>x.id===id);
+  if(!u||!confirm(`Delete user ${u.name}?`)) return;
+  users=users.filter(x=>x.id!==id);
+  showToast(`🗑️ Deleted: ${u.name}`,'error');
+  renderUsers();
+}
+
+/* ═══════════════ GUIDES ═══════════════ */
+let guideFilter='all';
+function renderGuides(filter=guideFilter){
+  guideFilter=filter;
+  let list=guides;
+  if(filter!=='all') list=list.filter(g=>g.status===filter);
+  const grid=document.getElementById('guide-grid');
+  if(!list.length){grid.innerHTML=`<div class="empty-state"><div class="es-icon">🧭</div>No guides found</div>`;return;}
+  grid.innerHTML=list.map(g=>`
+    <div class="guide-card">
+      <div class="guide-avatar">🧭</div>
+      <div class="guide-name">${g.name}</div>
+      <div class="guide-exp">📍 ${g.spec} • ${g.exp}</div>
+      <div class="guide-rating">${renderStars(g.rating)} <strong>${g.rating}</strong></div>
+      <span class="status-badge ${g.status}" style="margin-top:6px;display:inline-flex">${g.status.charAt(0).toUpperCase()+g.status.slice(1)}</span>
+      <div class="guide-actions">
+        ${g.status!=='approved'?`<button class="btn btn-sm btn-green" onclick="guideAction('${g.id}','approved')">✅ Approve</button>`:''}
+        ${g.status!=='rejected'?`<button class="btn btn-sm btn-red" onclick="guideAction('${g.id}','rejected')">❌ Reject</button>`:''}
+        <button class="btn btn-sm btn-ghost" onclick="viewGuide('${g.id}')">👁️ View</button>
+      </div>
+    </div>`).join('');
+}
+function renderStars(r){
+  const full=Math.floor(r), half=r%1>=0.5?1:0, empty=5-full-half;
+  return '⭐'.repeat(full)+(half?'✨':'')+('☆'.repeat(empty));
+}
+function filterGuides(f,el){
+  document.querySelectorAll('#page-guides .ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); renderGuides(f);
+}
+function guideAction(id,action){
+  const g=guides.find(x=>x.id===id);
+  if(!g) return;
+  g.status=action;
+  showToast(`${action==='approved'?'✅ Approved':'❌ Rejected'}: ${g.name}`,'info');
+  renderGuides();
+  document.getElementById('ov-guides').textContent=guides.filter(x=>x.status==='approved').length;
+  document.getElementById('an-guides').textContent=guides.filter(x=>x.status==='approved').length;
+}
+function viewGuide(id){
+  const g=guides.find(x=>x.id===id);
+  if(!g) return;
+  document.getElementById('modal-title').textContent='🧭 '+g.name;
+  document.getElementById('modal-body').innerHTML=`
+    <strong>Speciality:</strong> ${g.spec}<br>
+    <strong>Experience:</strong> ${g.exp}<br>
+    <strong>Rating:</strong> ${g.rating} / 5.0<br>
+    <strong>Status:</strong> ${g.status}<br>
+    <strong>ID:</strong> ${g.id}`;
+  document.getElementById('modal-overlay').style.display='flex';
+}
+function closeModal(){ document.getElementById('modal-overlay').style.display='none'; }
+
+/* ═══════════════ BOOKINGS ═══════════════ */
+let bookFilter='all', bookSearch='';
+function renderBookings(filter=bookFilter, search=bookSearch){
+  bookFilter=filter; bookSearch=search;
+  let list=bookings;
+  if(filter!=='all') list=list.filter(b=>b.status===filter);
+  if(search) list=list.filter(b=>b.tourist.toLowerCase().includes(search.toLowerCase())||b.location.toLowerCase().includes(search.toLowerCase()));
+  const tb=document.getElementById('bookings-tbody');
+  if(!list.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted)">No bookings found</td></tr>`;return;}
+  tb.innerHTML=list.map(b=>`
+    <tr>
+      <td><strong>${b.tourist}</strong></td>
+      <td>${b.guide}</td>
+      <td>📍 ${b.location}</td>
+      <td>${b.date}</td>
+      <td><strong>${b.amount}</strong></td>
+      <td><span class="status-badge ${b.status}">${b.status.charAt(0).toUpperCase()+b.status.slice(1)}</span></td>
+      <td>
+        ${b.status==='upcoming'?`<button class="btn btn-sm btn-red" onclick="cancelBooking('${b.id}')">Cancel</button>`:'<span style="color:var(--muted);font-size:12px">—</span>'}
+      </td>
+    </tr>`).join('');
+}
+function filterBookings(f,el){
+  document.querySelectorAll('#page-bookings .ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); renderBookings(f,bookSearch);
+}
+function searchBookings(v){ renderBookings(bookFilter,v); }
+function cancelBooking(id){
+  const b=bookings.find(x=>x.id===id);
+  if(!b||!confirm(`Cancel booking for ${b.tourist}?`)) return;
+  b.status='cancelled';
+  showToast(`🚫 Booking cancelled: ${b.tourist}`,'error');
+  renderBookings();
+}
+
+/* ═══════════════ TRANSACTIONS ═══════════════ */
+const txns=[
+  {tourist:'Priya Menon',guide:'Deepa Patel',trip:'Himachal Trek',date:'2026-03-22',amount:'₹12,000',comm:'₹1,200'},
+  {tourist:'Neha Kapoor',guide:'Suresh Babu',trip:'Goa Beach Tour',date:'2026-03-15',amount:'₹6,800',comm:'₹680'},
+  {tourist:'Arjun Bose',guide:'Deepa Patel',trip:'Manali Adventure',date:'2026-03-30',amount:'₹11,500',comm:'₹1,150'},
+];
+function renderTransactions(){
+  const tb=document.getElementById('transactions-tbody');
+  if(!tb) return;
+  tb.innerHTML=txns.map(t=>`<tr>
+    <td><strong>${t.tourist}</strong></td><td>${t.guide}</td><td>${t.trip}</td>
+    <td>${t.date}</td><td><strong>${t.amount}</strong></td>
+    <td style="color:#2e7d32;font-weight:700">${t.comm}</td>
+  </tr>`).join('');
+}
+
+/* ═══════════════ COMPLAINTS ═══════════════ */
+let cmpFilter='all';
+function renderComplaints(filter=cmpFilter){
+  cmpFilter=filter;
+  let list=complaints;
+  if(filter!=='all') list=list.filter(c=>c.status===filter);
+  const grid=document.getElementById('complaint-grid');
+  if(!list.length){grid.innerHTML=`<div class="empty-state"><div class="es-icon">🚨</div>No complaints in this category</div>`;return;}
+  grid.innerHTML=list.map(c=>`
+    <div class="complaint-card">
+      <div class="cc-user">
+        ${c.type==='Tourist'?'👤':'🧭'} ${c.user}
+        <span class="status-badge ${c.status}" style="margin-left:auto">${c.status.charAt(0).toUpperCase()+c.status.slice(1)}</span>
+      </div>
+      <div class="cc-issue">${c.issue}</div>
+      <div class="cc-actions">
+        ${c.status==='open'?`
+          <button class="btn btn-sm btn-green" onclick="resolveComplaint('${c.id}')">✅ Resolve</button>
+          <button class="btn btn-sm btn-ghost" onclick="ignoreComplaint('${c.id}')">🙈 Ignore</button>
+        `:`<span style="color:var(--muted);font-size:12px">✅ Resolved</span>`}
+      </div>
+    </div>`).join('');
+}
+function filterComplaints(f,el){
+  document.querySelectorAll('#page-complaints .ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active'); renderComplaints(f);
+}
+function resolveComplaint(id){
+  const c=complaints.find(x=>x.id===id);
+  if(!c) return;
+  c.status='resolved';
+  showToast('✅ Complaint resolved','success');
+  renderComplaints();
+  const open=complaints.filter(x=>x.status==='open').length;
+  document.getElementById('ov-complaints').textContent=open;
+}
+function ignoreComplaint(id){
+  complaints=complaints.filter(x=>x.id!==id);
+  showToast('🙈 Complaint ignored','info');
+  renderComplaints();
+}
+
+/* ═══════════════ NOTIFICATIONS ═══════════════ */
+function renderNotifications(){
+  const list=document.getElementById('notif-list');
+  list.innerHTML=notifications.map((n,i)=>`
+    <div class="notif-item ${n.unread?'unread':''}">
+      <div class="notif-icon">${n.icon}</div>
+      <div class="notif-body">
+        <div class="nb-title">${n.title}</div>
+        <div class="nb-desc">${n.desc}</div>
+        <div class="nb-time">🕐 ${n.time}</div>
+      </div>
+      ${n.unread?`<button class="btn btn-sm btn-ghost" onclick="markRead(${i})">Mark read</button>`:''}
+    </div>`).join('');
+}
+function markRead(i){ notifications[i].unread=false; renderNotifications(); updateNotifCount(); }
+function markAllRead(){ notifications.forEach(n=>n.unread=false); renderNotifications(); updateNotifCount(); showToast('✅ All notifications marked read','success'); }
+function updateNotifCount(){ const c=notifications.filter(n=>n.unread).length; document.getElementById('notifCount').textContent=c; }
+
+/* ═══════════════ SETTINGS ═══════════════ */
+function changePassword(){
+  const cur=document.getElementById('cur-pass').value;
+  const nw=document.getElementById('new-pass').value;
+  const cn=document.getElementById('conf-pass').value;
+  if(!cur||!nw||!cn){showToast('⚠️ Fill all fields','error');return;}
+  if(cur!=='admin123'){showToast('❌ Wrong current password','error');return;}
+  if(nw!==cn){showToast('❌ Passwords don\'t match','error');return;}
+  if(nw.length<6){showToast('⚠️ Password too short (min 6)','error');return;}
+  showToast('✅ Password updated successfully!','success');
+  document.getElementById('cur-pass').value='';
+  document.getElementById('new-pass').value='';
+  document.getElementById('conf-pass').value='';
+}
+function toggleSystem(){
+  const on=document.getElementById('sys-toggle').checked;
+  showToast(on?'✅ System set to Active':'🔧 System in Maintenance mode','info');
+}
+
+/* ═══════════════ INIT ═══════════════ */
+renderOverviewBars();
+</script>
+</body>
+</html>

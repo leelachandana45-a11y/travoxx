@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Travox</title>
+    <link rel="stylesheet" href="travo.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">📍 Travox</div>
+    <ul class="nav-links">
+        <li><a href="destinations.html">Destinations</a></li>		
+        <a href="blog.html">Blog</a>
+        <li><a href="#roles">Get Started</a></li>
+    </ul>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+    <div class="hero-text">
+        <h1>Explore the world with <span>Travox</span></h1>
+        <p>Your smart tourism companion platform to guide you on your next adventure.</p>
+
+        <div class="hero-buttons">
+            <a href="#roles" class="btn-primary" onclick="highlightRoles()">Get Started</a>
+            <a href="learn.html" class="btn-secondary">Learn More</a>
+        </div>
+    </div>
+</div>
+
+<!-- PROJECT TITLE -->
+<div class="details">
+    <h2>Travox – Smart Tourism Companion Platform</h2>
+</div>
+
+<hr>
+
+<!-- GET STARTED AS -->
+<div class="roles" id="roles">
+    <h2>Get Started As</h2>
+
+    <div class="card-container">
+        <a href="tourist-login.html" class="card">
+            <img src="tourist.png">
+            <h4>Tourist</h4>
+        </a>
+
+        <a href="guide-login.html" class="card">
+            <img src="guidee.png">
+            <h4>Local Guide</h4>
+        </a>
+
+        <a href="help.html" class="card">
+            <img src="help.png">
+            <h4>Safety & Help</h4>
+        </a>
+
+        <a href="admin-login.html" class="card">
+            <img src="admin.png">
+            <h4>Admin</h4>
+        </a>
+    </div>
+</div>
+
+<!-- JS FOR BLINK EFFECT -->
+<script>
+function highlightRoles() {
+    const rolesSection = document.getElementById("roles");
+    rolesSection.classList.add("highlight");
+
+    setTimeout(() => {
+        rolesSection.classList.remove("highlight");
+    }, 1200);
+}
+</script>
+
+</body>
+</html>

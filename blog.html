@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Travox Blogs</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #f5efe6;
+}
+
+/* NAVBAR */
+.navbar {
+    background: #8b4513;
+    color: white;
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* CONTAINER */
+.container {
+    padding: 20px 40px;
+}
+
+/* SEARCH */
+.search-bar {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    margin-bottom: 15px;
+}
+
+/* FILTER */
+.filters button {
+    margin: 5px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: none;
+    background: #d2b48c;
+    cursor: pointer;
+}
+
+/* BLOG CARD */
+.card {
+    background: white;
+    border-radius: 15px;
+    padding: 15px;
+    margin-top: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card img {
+    width: 100%;
+    border-radius: 10px;
+}
+
+/* ACTIONS */
+.actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.actions button {
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+/* ✨ WRITE BLOG PREMIUM */
+.write-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: linear-gradient(135deg, #fff, #f8f1e7);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* LEFT IMAGE */
+.write-image {
+    background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e') center/cover;
+}
+
+/* RIGHT FORM */
+.form {
+    padding: 25px;
+}
+
+.form h3 {
+    color: #8b4513;
+}
+
+.form input, .form textarea, .form select {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    background: #f5efe6;
+    transition: 0.3s;
+}
+
+.form input:focus,
+.form textarea:focus,
+.form select:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #8b4513;
+}
+
+/* BUTTON */
+.post-btn {
+    background: #8b4513;
+    color: white;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.post-btn:hover {
+    background: #6a3410;
+    transform: scale(1.03);
+}
+
+/* COMMENTS */
+.comment-box input {
+    width: 75%;
+    padding: 8px;
+}
+
+.comment-box button {
+    padding: 8px;
+    background: #8b4513;
+    color: white;
+    border: none;
+}
+
+/* FEATURED */
+.featured {
+    border: 2px solid #8b4513;
+}
+
+/* RESPONSIVE */
+@media(max-width:800px){
+    .write-section{
+        grid-template-columns:1fr;
+    }
+    .write-image{
+        height:200px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h2>📍 Travox Blogs</h2>
+    <a href="index.html" style="color:white;">Home</a>
+</div>
+
+<div class="container">
+
+<!-- SEARCH -->
+<input type="text" class="search-bar" placeholder="Search blogs..." onkeyup="searchBlogs(this.value)">
+
+<!-- FILTER -->
+<div class="filters">
+    <button onclick="filterBlogs('all')">All</button>
+    <button onclick="filterBlogs('Travel')">Travel</button>
+    <button onclick="filterBlogs('Food')">Food</button>
+    <button onclick="filterBlogs('Adventure')">Adventure</button>
+    <button onclick="filterBlogs('Culture')">Culture</button>
+</div>
+
+<!-- ✨ PREMIUM WRITE BLOG -->
+<div class="write-section">
+
+    <div class="write-image"></div>
+
+    <div class="form">
+        <h3>✍ Share Your Travel Story</h3>
+
+        <input id="title" placeholder="Blog Title">
+        <input id="location" placeholder="Location">
+        <select id="category">
+            <option>Travel</option>
+            <option>Food</option>
+            <option>Adventure</option>
+            <option>Culture</option>
+        </select>
+        <textarea id="desc" placeholder="Write your experience..."></textarea>
+
+        <button class="post-btn" onclick="addBlog()">Post Blog 🚀</button>
+    </div>
+
+</div>
+
+<!-- BLOG LIST -->
+<div id="blogs"></div>
+
+</div>
+
+<script>
+
+let blogData = [
+{title:"Exploring Chennai Beaches",location:"Chennai",category:"Travel",desc:"Beautiful beaches!",likes:5,comments:[],author:"Tourist"},
+{title:"Hyderabad Biryani",location:"Hyderabad",category:"Food",desc:"Best food!",likes:10,comments:[],author:"Guide"},
+{title:"Ooty Trekking",location:"Ooty",category:"Adventure",desc:"Amazing views!",likes:8,comments:[],author:"Tourist"},
+{title:"Jaipur Culture",location:"Jaipur",category:"Culture",desc:"Rich traditions!",likes:12,comments:[],author:"Guide"}
+];
+
+function displayBlogs(data){
+let html="";
+data.forEach((b,i)=>{
+html+=`
+<div class="card ${i==0?'featured':''}">
+<h4>${b.title}</h4>
+<p><b>${b.author}</b> | ${b.location}</p>
+<p>${b.desc}</p>
+
+<div class="actions">
+<button onclick="likeBlog(${i})">❤️ ${b.likes}</button>
+<button onclick="toggleComments(${i})">💬</button>
+<button>🔖</button>
+</div>
+
+<div id="c${i}" style="display:none;">
+<div class="comment-box">
+<input id="ci${i}">
+<button onclick="addComment(${i})">Send</button>
+</div>
+<div>${b.comments.map(c=>"<p>"+c+"</p>").join("")}</div>
+</div>
+</div>`;
+});
+document.getElementById("blogs").innerHTML=html;
+}
+
+displayBlogs(blogData);
+
+function addBlog(){
+blogData.unshift({
+title:title.value,
+location:location.value,
+category:category.value,
+desc:desc.value,
+likes:0,
+comments:[],
+author:"You"
+});
+displayBlogs(blogData);
+}
+
+function likeBlog(i){blogData[i].likes++;displayBlogs(blogData);}
+
+function toggleComments(i){
+let el=document.getElementById("c"+i);
+el.style.display=el.style.display==="none"?"block":"none";
+}
+
+function addComment(i){
+blogData[i].comments.push(document.getElementById("ci"+i).value);
+displayBlogs(blogData);
+}
+
+function filterBlogs(cat){
+if(cat==="all") displayBlogs(blogData);
+else displayBlogs(blogData.filter(b=>b.category===cat));
+}
+
+function searchBlogs(val){
+displayBlogs(blogData.filter(b=>
+b.title.toLowerCase().includes(val.toLowerCase()) ||
+b.location.toLowerCase().includes(val.toLowerCase())
+));
+}
+
+</script>
+
+</body>
+</html>

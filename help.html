@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Safety & SOS | Travox</title>
+    <link rel="stylesheet" href="help.css">
+</head>
+<body>
+
+<div class="header">
+    <h1>🛡️ Safety & SOS</h1>
+    <p>Quick access to emergency services and safety assistance.</p>
+</div>
+
+<div class="container">
+
+    <!-- LEFT SECTION -->
+    <div class="left">
+
+        <div class="card">
+            <h3>🚑 Medical Assistance</h3>
+            <p>Find nearby hospitals and call ambulance.</p>
+            <button onclick="callAmbulance()">Call Ambulance</button>
+        </div>
+
+        <div class="card">
+            <h3>👮 Police & Legal Help</h3>
+            <p>Contact local police for urgent help.</p>
+            <button onclick="callPolice()">Contact Police</button>
+        </div>
+
+        <div class="card">
+            <h3>🌐 Language Help</h3>
+            <p>Translate emergency phrases instantly.</p>
+            <button onclick="openTranslator()">Open Translator</button>
+        </div>
+
+    </div>
+
+    <!-- RIGHT SOS -->
+    <div class="sos-box">
+        <div class="sos-circle">🚨</div>
+        <h2>Emergency SOS</h2>
+        <p>Click to send live location instantly</p>
+
+        <div class="tags">
+            <span>Accident</span>
+            <span>Medical</span>
+            <span>Harassment</span>
+        </div>
+
+        <button class="sos-btn" onclick="sendSOS()">SEND SOS</button>
+    </div>
+
+</div>
+
+<script>
+function callAmbulance() {
+    alert("📞 Calling Ambulance (108)...\n\nPlease stay calm.\nHelp is on the way.");
+}
+
+function callPolice() {
+    alert("👮 Police Alert Sent!\n\nNearest police station has been notified.");
+}
+
+function openTranslator() {
+    window.open("https://translate.google.com", "_blank");
+}
+
+function sendSOS() {
+    alert(
+        "🚨 EMERGENCY SOS SENT!\n\n" +
+        "📍 Live Location Sent\n" +
+        "👤 User Details Shared\n" +
+        "📞 Emergency Contacts Alerted\n\n" +
+        "Help is on the way. Stay safe."
+    );
+}
+</script>
+
+</body>
+</html>

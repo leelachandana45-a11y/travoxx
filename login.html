@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login | Travox</title>
+</head>
+
+<body>
+    <h2>🔐 User Login</h2>
+    <hr>
+
+    <form onsubmit="loginUser(event)">
+        <label>Email:</label><br>
+        <input type="email" id="email"><br><br>
+
+        <label>Password:</label><br>
+        <input type="password" id="password"><br><br>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p>Demo Login – No database used</p>
+
+    <script>
+        function loginUser(event) {
+
+            // Prevent page reload
+            event.preventDefault();
+
+            // Get input values
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+
+            // Store inputs in array (loop usage)
+            var inputs = [email, password];
+
+            // LOOP to check empty fields
+            for (var i = 0; i < inputs.length; i++) {
+                if (inputs[i] === "") {
+                    alert("⚠ Please fill all fields!");
+                    return; // stop execution
+                }
+            }
+
+            // IF condition for demo validation
+            if (email === "leela@gmail.com" && password === "1234") {
+                alert("✅ Login Successful!");
+                window.location.href = "trav.html";
+            } else {
+                alert("❌ Invalid Email or Password!");
+            }
+        }
+    </script>
+
+</body>
+</html>

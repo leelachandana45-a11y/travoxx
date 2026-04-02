@@ -1,0 +1,144 @@
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: linear-gradient(rgba(245,239,230,0.92), rgba(245,239,230,0.92)),
+                url("travel-bg.png") center/cover no-repeat fixed;
+    color: #3e2a1a;
+}
+
+/* MAIN CONTAINER */
+.container {
+    max-width: 900px;
+    margin: 80px auto;
+    padding: 40px;
+    text-align: center;
+    background: rgba(255, 250, 243, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+/* TITLE */
+h1 {
+    margin-bottom: 10px;
+    font-size: 32px;
+}
+
+.subtitle {
+    margin-bottom: 30px;
+    color: #6b4a2d;
+}
+
+/* SEARCH BAR */
+#searchInput {
+    width: 65%;
+    padding: 14px;
+    border-radius: 30px;
+    border: 2px solid #8b4513;
+    font-size: 16px;
+    outline: none;
+    margin-bottom: 40px;
+    transition: 0.3s;
+}
+
+#searchInput:focus {
+    box-shadow: 0 0 0 3px rgba(139,69,19,0.2);
+}
+
+/* CARDS */
+#results {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.card {
+    display: none;
+    background: #fffaf3;
+    padding: 25px;
+    border-radius: 20px;
+    text-align: left;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card h2 span {
+    font-size: 14px;
+    color: #8b4513;
+}
+
+.actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 12px;
+}
+
+.actions button {
+    background: #8b4513;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.actions button:hover {
+    background: #6f3510;
+}
+
+/* NO RESULT */
+#noResult {
+    display: none;
+    margin-top: 20px;
+    font-weight: bold;
+    color: #8b4513;
+}
+
+/* FLOATING RIGHT BACK BUTTON */
+.floating-back {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    background: #8b4513;
+    color: white;
+    padding: 14px 22px;
+    border-radius: 40px;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    transition: 0.3s ease;
+}
+
+.floating-back:hover {
+    background: #6f3510;
+    transform: translateY(-4px);
+}
+
+/* BOTTOM BACK BUTTON */
+.bottom-back {
+    text-align: center;
+    margin: 60px 0 40px;
+}
+
+.bottom-back button {
+    background: #8b4513;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 30px;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+}
+
+.bottom-back button:hover {
+    background: #6f3510;
+}

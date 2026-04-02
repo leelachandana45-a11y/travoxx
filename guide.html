@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travox Guide Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brown-900: #2C1810;
+    --brown-800: #4A2C1A;
+    --brown-700: #6B3E26;
+    --brown-600: #8B5A2B;
+    --brown-500: #A67C52;
+    --brown-400: #C4956A;
+    --brown-300: #D4A574;
+    --brown-200: #E8C9A0;
+    --brown-100: #F0DCC0;
+    --brown-50:  #FAF4EC;
+    --cream-dark: #EDE0CC;
+    --cream:      #F5EDD9;
+    --cream-light:#FBF8F2;
+    --white:      #FFFFFF;
+    --text-dark:  #1E110A;
+    --text-mid:   #5C3D20;
+    --text-soft:  #8C6A48;
+    --text-muted: #B89A7A;
+    --green:      #2D7A4F;
+    --green-light:#D4EDDE;
+    --red:        #B83232;
+    --red-light:  #F9DADA;
+    --shadow-sm:  0 2px 8px rgba(74,44,26,0.10);
+    --shadow-md:  0 6px 24px rgba(74,44,26,0.13);
+    --shadow-lg:  0 16px 48px rgba(74,44,26,0.16);
+    --radius-sm:  10px;
+    --radius-md:  16px;
+    --radius-lg:  24px;
+    --radius-xl:  32px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 20% -10%, rgba(196,149,106,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 90% 100%, rgba(168,124,82,0.12) 0%, transparent 50%);
+  }
+
+  /* ── TOAST ───────────────────────────── */
+  #toast-container {
+    position: fixed; top: 24px; right: 24px;
+    z-index: 9999; display:flex; flex-direction:column; gap:10px;
+  }
+  .toast {
+    background: var(--brown-800);
+    color: var(--cream-light);
+    padding: 13px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--shadow-md);
+    animation: toastIn .35s cubic-bezier(.34,1.4,.64,1) forwards;
+    border-left: 4px solid var(--brown-300);
+    max-width: 320px;
+  }
+  .toast.out { animation: toastOut .3s ease forwards; }
+  @keyframes toastIn  { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:none} }
+  @keyframes toastOut { to{opacity:0;transform:translateX(40px)} }
+
+  /* ── HEADER ──────────────────────────── */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 40px;
+    background: var(--white);
+    border-bottom: 1.5px solid var(--brown-100);
+    position: sticky; top:0; z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .logo-wrap { display:flex; align-items:center; gap:12px; }
+  .logo-mark {
+    width: 40px; height: 40px;
+    background: var(--brown-700);
+    border-radius: 12px;
+    display: flex; align-items:center; justify-content:center;
+    color: var(--cream-light);
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 700;
+    letter-spacing: -1px;
+  }
+  .logo-text { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--brown-800); letter-spacing:.5px; }
+  .logo-sub  { font-size:12px; color:var(--text-muted); letter-spacing:2px; text-transform:uppercase; }
+
+  .header-right { display:flex; align-items:center; gap:16px; }
+
+  .notif-btn {
+    position:relative; width:40px; height:40px; border-radius:50%;
+    background:var(--brown-50); border:1.5px solid var(--brown-100);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:.2s; font-size:18px;
+  }
+  .notif-btn:hover { background:var(--brown-100); }
+  .notif-badge {
+    position:absolute; top:-3px; right:-3px;
+    background:var(--red); color:#fff;
+    width:18px; height:18px; border-radius:50%;
+    font-size:10px; font-weight:600;
+    display:flex; align-items:center; justify-content:center;
+    border:2px solid white;
+  }
+
+  .avail-toggle {
+    display:flex; align-items:center; gap:10px;
+    background:var(--green-light);
+    border:1.5px solid #a8d9be;
+    border-radius:50px; padding:8px 16px;
+    cursor:pointer; transition:.3s;
+  }
+  .avail-toggle.busy { background:var(--red-light); border-color:#e8b0b0; }
+  .toggle-dot {
+    width:10px; height:10px; border-radius:50%;
+    background: var(--green);
+    animation: pulse-green 2s infinite;
+  }
+  .avail-toggle.busy .toggle-dot { background:var(--red); animation:pulse-red 2s infinite; }
+  @keyframes pulse-green { 0%,100%{box-shadow:0 0 0 0 rgba(45,122,79,.5)} 50%{box-shadow:0 0 0 6px rgba(45,122,79,0)} }
+  @keyframes pulse-red   { 0%,100%{box-shadow:0 0 0 0 rgba(184,50,50,.5)} 50%{box-shadow:0 0 0 6px rgba(184,50,50,0)} }
+  .toggle-label { font-size:13px; font-weight:600; color:var(--green); }
+  .avail-toggle.busy .toggle-label { color:var(--red); }
+
+  .avatar-wrap { position:relative; }
+  .avatar-wrap img {
+    width:44px; height:44px; border-radius:50%;
+    border:2.5px solid var(--brown-300);
+    object-fit:cover;
+  }
+  .avatar-online {
+    position:absolute; bottom:2px; right:2px;
+    width:11px; height:11px; border-radius:50%;
+    background:var(--green); border:2px solid white;
+  }
+
+  /* ── NOTIF PANEL ─────────────────────── */
+  .notif-panel {
+    position:fixed; top:80px; right:24px;
+    width:320px; background:var(--white);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-lg);
+    border:1.5px solid var(--brown-100);
+    z-index:200; display:none;
+    animation: fadeDown .25s ease;
+  }
+  .notif-panel.show { display:block; }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:none} }
+  .notif-header {
+    padding:16px 20px; border-bottom:1px solid var(--brown-50);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .notif-header h4 { font-size:15px; font-weight:600; color:var(--text-dark); }
+  .notif-clear { font-size:12px; color:var(--brown-500); cursor:pointer; font-weight:500; }
+  .notif-item {
+    padding:14px 20px; border-bottom:1px solid var(--brown-50);
+    display:flex; gap:12px; align-items:flex-start;
+    transition:.2s; cursor:pointer;
+  }
+  .notif-item:hover { background:var(--brown-50); }
+  .notif-icon { font-size:20px; }
+  .notif-text { font-size:13px; color:var(--text-mid); line-height:1.5; }
+  .notif-time { font-size:11px; color:var(--text-muted); margin-top:3px; }
+
+  /* ── MAIN GRID ───────────────────────── */
+  .main {
+    display:grid;
+    grid-template-columns: 300px 1fr 320px;
+    gap:24px;
+    padding:28px 40px;
+    max-width:1440px; margin:0 auto;
+  }
+
+  /* ── CARDS ───────────────────────────── */
+  .card {
+    background:var(--white);
+    border-radius:var(--radius-md);
+    padding:24px;
+    border:1.5px solid var(--brown-100);
+    box-shadow:var(--shadow-sm);
+    transition:transform .25s, box-shadow .25s;
+  }
+  .card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+  .card-title {
+    font-family:'Playfair Display',serif;
+    font-size:16px; font-weight:600;
+    color:var(--text-dark); margin-bottom:16px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .card-title-icon {
+    width:28px; height:28px; border-radius:8px;
+    background:var(--brown-50); border:1px solid var(--brown-100);
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+  }
+
+  /* ── LEFT COLUMN ─────────────────────── */
+  .col-left { display:flex; flex-direction:column; gap:20px; }
+
+  /* Profile */
+  .profile-card { text-align:center; }
+  .profile-avatar-wrap {
+    position:relative; display:inline-block; margin-bottom:16px;
+  }
+  .profile-avatar {
+    width:90px; height:90px; border-radius:50%;
+    border:3px solid var(--brown-200);
+    object-fit:cover;
+    box-shadow: 0 4px 20px rgba(107,62,38,.25);
+  }
+  .verified-badge {
+    position:absolute; bottom:2px; right:2px;
+    width:26px; height:26px; border-radius:50%;
+    background:var(--brown-600); border:2.5px solid white;
+    display:flex; align-items:center; justify-content:center;
+    font-size:12px;
+  }
+  .guide-name {
+    font-family:'Playfair Display',serif;
+    font-size:20px; font-weight:700; color:var(--text-dark);
+    margin-bottom:4px;
+  }
+  .guide-exp { font-size:13px; color:var(--text-soft); margin-bottom:10px; }
+  .tag-row { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
+  .tag {
+    padding:4px 12px; border-radius:50px;
+    font-size:12px; font-weight:500;
+    background:var(--brown-50); color:var(--brown-700);
+    border:1px solid var(--brown-100);
+  }
+  .rating-row {
+    display:flex; align-items:center; gap:6px; justify-content:center;
+    margin-bottom:12px;
+  }
+  .stars { color:#E8A500; font-size:15px; letter-spacing:1px; }
+  .rating-num { font-size:15px; font-weight:600; color:var(--text-dark); }
+  .rating-count { font-size:12px; color:var(--text-muted); }
+  .specialization {
+    font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--brown-600); padding:6px 14px;
+    background:var(--brown-50); border-radius:6px;
+    display:inline-block;
+  }
+
+  /* Stats Row */
+  .stats-card { display:flex; gap:0; overflow:hidden; }
+  .stat {
+    flex:1; text-align:center; padding:16px 8px;
+    border-right:1px solid var(--brown-100);
+    position:relative;
+  }
+  .stat:last-child { border-right:none; }
+  .stat-icon { font-size:18px; margin-bottom:4px; }
+  .stat-val { font-size:18px; font-weight:700; color:var(--text-dark); font-family:'Playfair Display',serif; }
+  .stat-lbl { font-size:11px; color:var(--text-muted); margin-top:2px; letter-spacing:.5px; text-transform:uppercase; }
+
+  /* Reviews */
+  .review-item {
+    padding:12px 14px;
+    background:var(--brown-50);
+    border-radius:var(--radius-sm);
+    margin-bottom:10px;
+    border-left:3px solid var(--brown-300);
+  }
+  .review-text { font-size:13px; color:var(--text-mid); line-height:1.5; font-style:italic; }
+  .review-author { font-size:12px; color:var(--brown-500); margin-top:6px; font-weight:600; }
+  .review-stars { color:#E8A500; font-size:12px; }
+
+  /* SOS */
+  .sos-btn {
+    background:linear-gradient(135deg, #C0392B, #962d22);
+    color:white; border:none; border-radius:var(--radius-sm);
+    padding:16px; width:100%; font-size:15px; font-weight:600;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    gap:10px; letter-spacing:.5px;
+    box-shadow: 0 4px 16px rgba(192,57,43,.35);
+    transition:.2s;
+    position:relative; overflow:hidden;
+  }
+  .sos-btn::before {
+    content:'';
+    position:absolute; inset:0;
+    background:rgba(255,255,255,0);
+    transition:.2s;
+  }
+  .sos-btn:hover::before { background:rgba(255,255,255,0.12); }
+  .sos-btn:active { transform:scale(.98); }
+  .sos-ping {
+    width:14px; height:14px; border-radius:50%;
+    background:rgba(255,255,255,0.8);
+    animation:sos-pulse 1.4s infinite;
+  }
+  @keyframes sos-pulse {
+    0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.6)}
+    50%{box-shadow:0 0 0 10px rgba(255,255,255,0)}
+  }
+
+  /* ── CENTER COLUMN ────────────────────── */
+  .col-center { display:flex; flex-direction:column; gap:20px; }
+
+  /* Bookings */
+  .booking-item {
+    background:var(--brown-50);
+    border:1.5px solid var(--brown-100);
+    border-radius:var(--radius-sm);
+    padding:16px;
+    margin-bottom:12px;
+    display:flex; align-items:center; gap:16px;
+    transition:.2s;
+    position:relative;
+    overflow:hidden;
+  }
+  .booking-item:last-child { margin-bottom:0; }
+  .booking-item::before {
+    content:'';
+    position:absolute; left:0; top:0; bottom:0; width:4px;
+    background:var(--brown-300);
+    border-radius:4px 0 0 4px;
+    transition:.3s;
+  }
+  .booking-item:hover { border-color:var(--brown-200); background:var(--cream-light); }
+  .booking-avatar {
+    width:44px; height:44px; border-radius:50%;
+    background:var(--brown-200);
+    display:flex; align-items:center; justify-content:center;
+    font-size:16px; font-weight:700; color:var(--brown-800);
+    flex-shrink:0; font-family:'Playfair Display',serif;
+  }
+  .booking-info { flex:1; }
+  .booking-name { font-size:15px; font-weight:600; color:var(--text-dark); }
+  .booking-meta { font-size:12px; color:var(--text-soft); margin-top:3px; display:flex; gap:10px; }
+  .booking-meta span { display:flex; align-items:center; gap:4px; }
+  .booking-status {
+    font-size:11px; font-weight:600; padding:4px 10px; border-radius:50px;
+    background:var(--brown-100); color:var(--brown-700);
+    letter-spacing:.5px; text-transform:uppercase;
+    transition:.3s;
+  }
+  .booking-status.accepted { background:#d4edda; color:#155724; }
+  .booking-status.started  { background:#fff3cd; color:#856404; }
+  .booking-status.done     { background:#d4edda; color:#155724; }
+  .booking-actions { display:flex; gap:6px; flex-shrink:0; }
+  .btn-action {
+    padding:7px 14px; border-radius:8px; border:1.5px solid var(--brown-200);
+    background:var(--white); color:var(--brown-700);
+    font-size:12px; font-weight:600; cursor:pointer; transition:.2s;
+    font-family:'DM Sans',sans-serif;
+  }
+  .btn-action:hover { background:var(--brown-700); color:var(--white); border-color:var(--brown-700); }
+  .btn-action.primary { background:var(--brown-700); color:var(--white); border-color:var(--brown-700); }
+  .btn-action.primary:hover { background:var(--brown-800); border-color:var(--brown-800); }
+
+  /* Earnings Chart */
+  .earnings-header {
+    display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;
+  }
+  .earnings-total { font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:var(--text-dark); }
+  .earnings-label { font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .earnings-today {
+    text-align:right;
+    padding:10px 16px;
+    background:var(--brown-50);
+    border-radius:var(--radius-sm);
+    border:1px solid var(--brown-100);
+  }
+  .today-val { font-size:18px; font-weight:700; color:var(--brown-700); }
+  .today-lbl { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; }
+
+  .chart-wrap { display:flex; gap:10px; align-items:flex-end; height:150px; margin-bottom:10px; }
+  .bar-group { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; }
+  .bar-outer {
+    flex:1; width:100%; background:var(--brown-50);
+    border-radius:8px; border:1px solid var(--brown-100);
+    display:flex; align-items:flex-end; overflow:hidden;
+  }
+  .bar-fill {
+    width:100%;
+    background:linear-gradient(to top, var(--brown-700), var(--brown-400));
+    border-radius:8px;
+    height:0;
+    transition: height 1s cubic-bezier(.34,1.2,.64,1);
+    position:relative;
+  }
+  .bar-fill.active {
+    background:linear-gradient(to top, var(--brown-800), var(--brown-300));
+    box-shadow: 0 0 16px rgba(107,62,38,.3);
+  }
+  .bar-val {
+    font-size:10px; font-weight:700; color:var(--white);
+    position:absolute; top:6px; left:50%; transform:translateX(-50%);
+    white-space:nowrap;
+    opacity:0; transition:opacity .3s .8s;
+  }
+  .bar-fill.show-val .bar-val { opacity:1; }
+  .bar-lbl { font-size:12px; color:var(--text-muted); font-weight:500; }
+  .chart-days { display:flex; gap:10px; }
+  .chart-day { flex:1; text-align:center; font-size:11px; color:var(--text-muted); }
+
+  /* ── RIGHT COLUMN ────────────────────── */
+  .col-right { display:flex; flex-direction:column; gap:20px; }
+
+  /* Chat */
+  .chat-box {
+    height:260px; overflow-y:auto;
+    background:var(--brown-50);
+    border-radius:var(--radius-sm);
+    padding:14px;
+    display:flex; flex-direction:column; gap:10px;
+    border:1px solid var(--brown-100);
+    scroll-behavior:smooth;
+  }
+  .chat-box::-webkit-scrollbar { width:4px; }
+  .chat-box::-webkit-scrollbar-thumb { background:var(--brown-200); border-radius:4px; }
+
+  .msg {
+    max-width:78%; padding:10px 14px;
+    border-radius:16px; font-size:13px; line-height:1.5;
+    animation: msgIn .25s cubic-bezier(.34,1.4,.64,1);
+  }
+  @keyframes msgIn { from{opacity:0;transform:scale(.9) translateY(6px)} to{opacity:1;transform:none} }
+  .msg-in  { background:var(--white); color:var(--text-dark); border-bottom-left-radius:4px; border:1px solid var(--brown-100); align-self:flex-start; }
+  .msg-out { background:var(--brown-700); color:var(--white); border-bottom-right-radius:4px; align-self:flex-end; }
+  .msg-time { font-size:10px; opacity:.6; margin-top:4px; }
+
+  .chat-input-row {
+    display:flex; gap:8px; margin-top:12px;
+    align-items:center;
+  }
+  .chat-input {
+    flex:1; padding:11px 16px;
+    background:var(--brown-50); border:1.5px solid var(--brown-100);
+    border-radius:50px; font-size:14px; font-family:'DM Sans',sans-serif;
+    color:var(--text-dark); outline:none; transition:.2s;
+  }
+  .chat-input:focus { border-color:var(--brown-400); background:var(--white); }
+  .chat-send {
+    width:42px; height:42px; border-radius:50%;
+    background:var(--brown-700); border:none; color:var(--white);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:.2s; flex-shrink:0;
+  }
+  .chat-send:hover { background:var(--brown-800); transform:scale(1.07); }
+  .chat-send svg { width:18px; height:18px; }
+
+  .quick-replies { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .quick-btn {
+    padding:7px 14px; border-radius:50px;
+    background:var(--white); border:1.5px solid var(--brown-200);
+    color:var(--brown-700); font-size:12px; font-weight:500;
+    cursor:pointer; transition:.2s; font-family:'DM Sans',sans-serif;
+  }
+  .quick-btn:hover { background:var(--brown-700); color:var(--white); border-color:var(--brown-700); }
+
+  /* Status Card */
+  .status-display {
+    display:flex; align-items:center; gap:12px;
+  }
+  .status-dot {
+    width:12px; height:12px; border-radius:50%;
+    background:var(--green); flex-shrink:0;
+    animation:pulse-green 2s infinite;
+  }
+  .status-dot.busy { background:var(--red); animation:pulse-red 2s infinite; }
+  .status-text-wrap { flex:1; }
+  .status-label { font-size:15px; font-weight:600; color:var(--text-dark); }
+  .status-sublabel { font-size:12px; color:var(--text-muted); }
+  .status-switch-btn {
+    padding:9px 18px; border-radius:50px;
+    background:var(--brown-700); color:var(--white); border:none;
+    font-size:13px; font-weight:600; cursor:pointer; transition:.2s;
+    font-family:'DM Sans',sans-serif;
+  }
+  .status-switch-btn:hover { background:var(--brown-800); }
+
+  /* Trip Progress */
+  .trip-progress { display:flex; flex-direction:column; gap:10px; }
+  .trip-step {
+    display:flex; align-items:center; gap:12px;
+    padding:10px 14px; border-radius:var(--radius-sm);
+    background:var(--brown-50); border:1px solid var(--brown-100);
+    font-size:13px; color:var(--text-mid);
+    transition:.3s;
+  }
+  .trip-step.active { background:var(--brown-700); color:var(--white); border-color:var(--brown-700); }
+  .trip-step.done   { background:var(--green-light); border-color:#a8d9be; color:var(--green); }
+  .step-icon { font-size:16px; }
+
+  /* Scroll animation */
+  .fade-up {
+    opacity:0; transform:translateY(20px);
+    transition:opacity .5s, transform .5s;
+  }
+  .fade-up.visible { opacity:1; transform:none; }
+
+  /* Responsive */
+  @media(max-width:1100px) {
+    .main { grid-template-columns:1fr 1fr; }
+    .col-left { grid-column:1/2; }
+    .col-center { grid-column:2/3; }
+    .col-right { grid-column:1/3; display:grid; grid-template-columns:1fr 1fr; }
+  }
+  @media(max-width:700px) {
+    .main { grid-template-columns:1fr; padding:16px; }
+    .col-right { grid-template-columns:1fr; }
+    .header { padding:14px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<!-- NOTIFICATION PANEL -->
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header">
+    <h4>Notifications</h4>
+    <span class="notif-clear" onclick="clearNotifs()">Clear all</span>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon">📅</div>
+    <div>
+      <div class="notif-text">New booking request from Rahul — Chennai tour</div>
+      <div class="notif-time">2 minutes ago</div>
+    </div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon">⭐</div>
+    <div>
+      <div class="notif-text">Priya rated your service 5 stars!</div>
+      <div class="notif-time">1 hour ago</div>
+    </div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon">💰</div>
+    <div>
+      <div class="notif-text">Payment of ₹2500 received for yesterday's tour</div>
+      <div class="notif-time">3 hours ago</div>
+    </div>
+  </div>
+  <div class="notif-item">
+    <div class="notif-icon">📢</div>
+    <div>
+      <div class="notif-text">Weekend demand is high in your area — go online!</div>
+      <div class="notif-time">Today, 9:00 AM</div>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo-wrap">
+    <div class="logo-mark">T</div>
+    <div>
+      <div class="logo-text">TRAVOX</div>
+      <div class="logo-sub">Guide Portal</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="notif-btn" onclick="toggleNotif()" id="notifBtn">
+      🔔
+      <div class="notif-badge" id="notifBadge">4</div>
+    </div>
+    <div class="avail-toggle" id="headerToggle" onclick="toggleStatus()">
+      <div class="toggle-dot" id="headerDot"></div>
+      <span class="toggle-label" id="headerLabel">Available</span>
+    </div>
+    <div class="avatar-wrap">
+      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Guide">
+      <div class="avatar-online" id="avatarOnline"></div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- LEFT COLUMN -->
+  <div class="col-left">
+
+    <!-- Profile Card -->
+    <div class="card profile-card fade-up">
+      <div class="profile-avatar-wrap">
+        <img class="profile-avatar" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Arjun Kumar">
+        <div class="verified-badge">✓</div>
+      </div>
+      <div class="guide-name">Arjun Kumar</div>
+      <div class="guide-exp">3+ years experience</div>
+      <div class="tag-row">
+        <span class="tag">English</span>
+        <span class="tag">Tamil</span>
+        <span class="tag">Hindi</span>
+      </div>
+      <div class="rating-row">
+        <span class="stars">★★★★★</span>
+        <span class="rating-num">4.8</span>
+        <span class="rating-count">(124 reviews)</span>
+      </div>
+      <div class="specialization">History & Heritage</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="card stats-card fade-up" style="padding:0; overflow:hidden;">
+      <div class="stat">
+        <div class="stat-icon">💰</div>
+        <div class="stat-val">₹15K</div>
+        <div class="stat-lbl">Total</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">📅</div>
+        <div class="stat-val">5</div>
+        <div class="stat-lbl">Today</div>
+      </div>
+      <div class="stat">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-val">4.8</div>
+        <div class="stat-lbl">Rating</div>
+      </div>
+    </div>
+
+    <!-- Reviews -->
+    <div class="card fade-up">
+      <div class="card-title">
+        <div class="card-title-icon">⭐</div>
+        Reviews
+      </div>
+      <div class="review-item">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Arjun was incredibly knowledgeable. Made history come alive!"</div>
+        <div class="review-author">— Rahul M., Chennai</div>
+      </div>
+      <div class="review-item">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Amazing experience, very friendly and professional."</div>
+        <div class="review-author">— Priya S., Bangalore</div>
+      </div>
+      <div class="review-item">
+        <div class="review-stars">★★★★☆</div>
+        <div class="review-text">"Great tour of Pondicherry. Would book again!"</div>
+        <div class="review-author">— Meera R., Mumbai</div>
+      </div>
+    </div>
+
+    <!-- SOS -->
+    <button class="sos-btn" onclick="handleSOS()">
+      <div class="sos-ping"></div>
+      Emergency Support
+    </button>
+
+  </div>
+
+  <!-- CENTER COLUMN -->
+  <div class="col-center">
+
+    <!-- Bookings -->
+    <div class="card fade-up">
+      <div class="card-title">
+        <div class="card-title-icon">📋</div>
+        Booking Management
+      </div>
+
+      <div class="booking-item" id="booking-1">
+        <div class="booking-avatar">R</div>
+        <div class="booking-info">
+          <div class="booking-name">Rahul Sharma</div>
+          <div class="booking-meta">
+            <span>📍 Chennai</span>
+            <span>🕐 10:00 AM</span>
+            <span>👥 2 guests</span>
+          </div>
+        </div>
+        <span class="booking-status" id="status-1">Pending</span>
+        <div class="booking-actions">
+          <button class="btn-action" onclick="bookingAction('1','Accept','accepted')">Accept</button>
+          <button class="btn-action" onclick="bookingAction('1','Start','started')">Start</button>
+          <button class="btn-action" onclick="bookingAction('1','Done','done')">Done</button>
+        </div>
+      </div>
+
+      <div class="booking-item" id="booking-2">
+        <div class="booking-avatar">P</div>
+        <div class="booking-info">
+          <div class="booking-name">Priya Krishnan</div>
+          <div class="booking-meta">
+            <span>📍 Pondicherry</span>
+            <span>🕐 2:30 PM</span>
+            <span>👥 4 guests</span>
+          </div>
+        </div>
+        <span class="booking-status" id="status-2">Pending</span>
+        <div class="booking-actions">
+          <button class="btn-action" onclick="bookingAction('2','Accept','accepted')">Accept</button>
+          <button class="btn-action" onclick="bookingAction('2','Start','started')">Start</button>
+          <button class="btn-action" onclick="bookingAction('2','Done','done')">Done</button>
+        </div>
+      </div>
+
+      <div class="booking-item" id="booking-3">
+        <div class="booking-avatar">S</div>
+        <div class="booking-info">
+          <div class="booking-name">Suresh Anand</div>
+          <div class="booking-meta">
+            <span>📍 Mahabalipuram</span>
+            <span>🕐 9:00 AM</span>
+            <span>👥 3 guests</span>
+          </div>
+        </div>
+        <span class="booking-status" id="status-3">Pending</span>
+        <div class="booking-actions">
+          <button class="btn-action" onclick="bookingAction('3','Accept','accepted')">Accept</button>
+          <button class="btn-action" onclick="bookingAction('3','Start','started')">Start</button>
+          <button class="btn-action" onclick="bookingAction('3','Done','done')">Done</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings Chart -->
+    <div class="card fade-up">
+      <div class="earnings-header">
+        <div>
+          <div class="earnings-total">₹15,000</div>
+          <div class="earnings-label">Total earnings this week</div>
+        </div>
+        <div class="earnings-today">
+          <div class="today-val">₹2,000</div>
+          <div class="today-lbl">Today</div>
+        </div>
+      </div>
+
+      <div class="chart-wrap" id="chartWrap">
+        <div class="bar-group">
+          <div class="bar-outer"><div class="bar-fill" data-h="55" id="bar-Mon"><span class="bar-val">₹1.8K</span></div></div>
+          <div class="bar-lbl">Mon</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-outer"><div class="bar-fill active" data-h="80" id="bar-Tue"><span class="bar-val">₹2.7K</span></div></div>
+          <div class="bar-lbl">Tue</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-outer"><div class="bar-fill" data-h="45" id="bar-Wed"><span class="bar-val">₹1.5K</span></div></div>
+          <div class="bar-lbl">Wed</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-outer"><div class="bar-fill active" data-h="90" id="bar-Thu"><span class="bar-val">₹3.0K</span></div></div>
+          <div class="bar-lbl">Thu</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-outer"><div class="bar-fill" data-h="65" id="bar-Fri"><span class="bar-val">₹2.0K</span></div></div>
+          <div class="bar-lbl">Fri</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-outer"><div class="bar-fill" data-h="30" id="bar-Sat"><span class="bar-val">₹1.0K</span></div></div>
+          <div class="bar-lbl">Sat</div>
+        </div>
+        <div class="bar-group">
+          <div class="bar-outer"><div class="bar-fill" data-h="50" id="bar-Sun"><span class="bar-val">₹1.5K</span></div></div>
+          <div class="bar-lbl">Sun</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Completed Trips: <strong style="color:var(--text-dark)">38 this week</strong></div>
+    </div>
+
+    <!-- Trip Progress -->
+    <div class="card fade-up">
+      <div class="card-title">
+        <div class="card-title-icon">🗺️</div>
+        Current Trip — Rahul (Chennai)
+      </div>
+      <div class="trip-progress">
+        <div class="trip-step done" id="trip-step-1">
+          <span class="step-icon">✅</span> Booking Accepted
+        </div>
+        <div class="trip-step active" id="trip-step-2">
+          <span class="step-icon">🚗</span> En Route to Tourist
+        </div>
+        <div class="trip-step" id="trip-step-3">
+          <span class="step-icon">🏛️</span> Tour in Progress
+        </div>
+        <div class="trip-step" id="trip-step-4">
+          <span class="step-icon">🎉</span> Trip Completed
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        <button class="btn-action primary" onclick="nextTripStep()" style="flex:1">Next Step →</button>
+        <button class="btn-action" onclick="resetTrip()" style="flex:1">Reset</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN -->
+  <div class="col-right">
+
+    <!-- Chat -->
+    <div class="card fade-up">
+      <div class="card-title">
+        <div class="card-title-icon">💬</div>
+        Chat — Rahul
+      </div>
+      <div class="chat-box" id="chatBox">
+        <div class="msg msg-in">
+          Hello! Are you on your way?
+          <div class="msg-time">10:02 AM</div>
+        </div>
+        <div class="msg msg-out">
+          Yes, I'm on the way! Be there in 10 mins 🙏
+          <div class="msg-time">10:03 AM</div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMsg()">
+        <button class="chat-send" onclick="sendMsg()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="quick-replies">
+        <button class="quick-btn" onclick="quickSend('On the way 🚗')">On the way</button>
+        <button class="quick-btn" onclick="quickSend('Reached! 📍')">Reached</button>
+        <button class="quick-btn" onclick="quickSend('Tour started! 🏛️')">Started</button>
+        <button class="quick-btn" onclick="quickSend('Done ✅')">Done</button>
+      </div>
+    </div>
+
+    <!-- Status -->
+    <div class="card fade-up">
+      <div class="card-title">
+        <div class="card-title-icon">🟢</div>
+        Live Status
+      </div>
+      <div class="status-display">
+        <div class="status-dot" id="statusDot"></div>
+        <div class="status-text-wrap">
+          <div class="status-label" id="statusLabel">Available</div>
+          <div class="status-sublabel" id="statusSub">Accepting new bookings</div>
+        </div>
+        <button class="status-switch-btn" onclick="toggleStatus()">Switch</button>
+      </div>
+    </div>
+
+    <!-- Weekly Summary -->
+    <div class="card fade-up" style="padding:20px;">
+      <div class="card-title">
+        <div class="card-title-icon">📊</div>
+        Weekly Summary
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:var(--brown-50);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--brown-100);">
+          <div style="font-size:20px;font-weight:700;color:var(--brown-700);font-family:'Playfair Display',serif;">38</div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Trips</div>
+        </div>
+        <div style="background:var(--brown-50);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--brown-100);">
+          <div style="font-size:20px;font-weight:700;color:var(--brown-700);font-family:'Playfair Display',serif;">124</div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Tourists</div>
+        </div>
+        <div style="background:var(--brown-50);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--brown-100);">
+          <div style="font-size:20px;font-weight:700;color:var(--green);font-family:'Playfair Display',serif;">98%</div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Accept Rate</div>
+        </div>
+        <div style="background:var(--brown-50);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--brown-100);">
+          <div style="font-size:20px;font-weight:700;color:var(--brown-700);font-family:'Playfair Display',serif;">4.8★</div>
+          <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">Rating</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  /* ── AVAILABILITY ─────────────────────── */
+  let isAvailable = localStorage.getItem('available') !== 'false';
+
+  function setStatusUI(avail) {
+    const ht = document.getElementById('headerToggle');
+    const hl = document.getElementById('headerLabel');
+    const sl = document.getElementById('statusLabel');
+    const ss = document.getElementById('statusSub');
+    const sd = document.getElementById('statusDot');
+    const ao = document.getElementById('avatarOnline');
+
+    if(avail) {
+      ht.classList.remove('busy');
+      hl.textContent = 'Available';
+      sl.textContent = 'Available';
+      ss.textContent = 'Accepting new bookings';
+      sd.classList.remove('busy');
+      ao.style.background = 'var(--green)';
+    } else {
+      ht.classList.add('busy');
+      hl.textContent = 'Busy';
+      sl.textContent = 'Busy';
+      ss.textContent = 'Not accepting bookings';
+      sd.classList.add('busy');
+      ao.style.background = 'var(--red)';
+    }
+  }
+
+  function toggleStatus() {
+    isAvailable = !isAvailable;
+    localStorage.setItem('available', isAvailable);
+    setStatusUI(isAvailable);
+    showToast(isAvailable ? '✅ Status set to Available' : '🔴 Status set to Busy');
+  }
+
+  setStatusUI(isAvailable);
+
+  /* ── TOAST ───────────────────────────── */
+  function showToast(msg) {
+    const tc = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    tc.appendChild(t);
+    setTimeout(() => {
+      t.classList.add('out');
+      setTimeout(() => t.remove(), 350);
+    }, 3000);
+  }
+
+  /* ── NOTIFICATIONS ───────────────────── */
+  function toggleNotif() {
+    const panel = document.getElementById('notifPanel');
+    panel.classList.toggle('show');
+    document.getElementById('notifBadge').style.display = 'none';
+  }
+  document.addEventListener('click', e => {
+    if(!e.target.closest('#notifBtn') && !e.target.closest('#notifPanel')) {
+      document.getElementById('notifPanel').classList.remove('show');
+    }
+  });
+  function clearNotifs() {
+    document.getElementById('notifPanel').innerHTML =
+      '<div style="padding:24px;text-align:center;color:var(--text-muted);font-size:13px;">No new notifications</div>';
+    showToast('🔕 Notifications cleared');
+  }
+
+  /* ── BOOKINGS ────────────────────────── */
+  function bookingAction(id, label, cls) {
+    const el = document.getElementById('status-' + id);
+    el.textContent = label;
+    el.className = 'booking-status ' + cls;
+    showToast(`📋 Booking #${id} marked as ${label}`);
+  }
+
+  /* ── CHAT ────────────────────────────── */
+  function sendMsg() {
+    const inp = document.getElementById('chatInput');
+    const text = inp.value.trim();
+    if(!text) return;
+    appendMsg(text, 'out');
+    inp.value = '';
+    setTimeout(() => {
+      const replies = ['Got it, thanks! 👍', 'Ok, see you soon! 🙏', 'Noted ✅', 'Understood, on my way!'];
+      appendMsg(replies[Math.floor(Math.random() * replies.length)], 'in');
+    }, 900);
+  }
+  function quickSend(text) { appendMsg(text, 'out'); }
+  function appendMsg(text, side) {
+    const box = document.getElementById('chatBox');
+    const div = document.createElement('div');
+    div.className = 'msg msg-' + side;
+    const now = new Date();
+    const time = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+    div.innerHTML = text + '<div class="msg-time">' + time + '</div>';
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  /* ── BAR CHART ───────────────────────── */
+  function animateBars() {
+    document.querySelectorAll('.bar-fill').forEach((bar, i) => {
+      const h = bar.dataset.h;
+      setTimeout(() => {
+        bar.style.height = h + '%';
+        setTimeout(() => bar.classList.add('show-val'), 800);
+      }, i * 100);
+    });
+  }
+  setTimeout(animateBars, 400);
+
+  /* ── TRIP STEPS ──────────────────────── */
+  let currentStep = 2;
+  const steps = 4;
+  function nextTripStep() {
+    if(currentStep >= steps) { showToast('🎉 Trip already completed!'); return; }
+    document.getElementById('trip-step-'+currentStep).classList.remove('active');
+    document.getElementById('trip-step-'+currentStep).classList.add('done');
+    document.getElementById('trip-step-'+currentStep).innerHTML =
+      document.getElementById('trip-step-'+currentStep).innerHTML.replace(/<span class="step-icon">.*?<\/span>/, '<span class="step-icon">✅</span>');
+    currentStep++;
+    if(currentStep <= steps) {
+      document.getElementById('trip-step-'+currentStep).classList.add('active');
+      showToast('▶️ Trip step updated');
+    }
+    if(currentStep > steps) showToast('🎉 Trip completed! Great work, Arjun!');
+  }
+  function resetTrip() {
+    currentStep = 2;
+    const labels = ['Booking Accepted','En Route to Tourist','Tour in Progress','Trip Completed'];
+    const icons  = ['✅','🚗','🏛️','🎉'];
+    for(let i=1;i<=4;i++) {
+      const el = document.getElementById('trip-step-'+i);
+      el.className = 'trip-step';
+      el.innerHTML = `<span class="step-icon">${icons[i-1]}</span> ${labels[i-1]}`;
+    }
+    document.getElementById('trip-step-1').classList.add('done');
+    document.getElementById('trip-step-1').innerHTML = '<span class="step-icon">✅</span> Booking Accepted';
+    document.getElementById('trip-step-2').classList.add('active');
+    showToast('🔄 Trip progress reset');
+  }
+
+  /* ── SOS ─────────────────────────────── */
+  function handleSOS() {
+    showToast('🚨 Emergency alert sent to Travox support team!');
+    setTimeout(()=>showToast('📞 Support team will call you within 2 minutes'),1500);
+  }
+
+  /* ── FADE IN ANIMATION ───────────────── */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, {threshold:.1});
+  document.querySelectorAll('.fade-up').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>

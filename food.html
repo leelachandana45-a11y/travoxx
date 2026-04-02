@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Food | Travox</title>
+    <link rel="stylesheet" href="feature.css">
+
+    <style>
+        .layout {
+            display: flex;
+            gap: 20px;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: 220px;
+            background: #fffaf3;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 10px;
+            color: #8B4513;
+        }
+
+        .sidebar label {
+            display: block;
+            margin: 6px 0;
+            cursor: pointer;
+        }
+
+        /* RESULTS */
+        .results {
+            flex: 1;
+        }
+
+        /* FOOD CARD IMAGE */
+        .food-img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+            transition: 0.4s;
+        }
+
+        .card:hover .food-img {
+            transform: scale(1.1);
+        }
+
+        /* BACKGROUND FOOD STYLE */
+        body {
+            background: linear-gradient(rgba(245,239,230,0.95), rgba(245,239,230,0.95)),
+                        url("https://images.unsplash.com/photo-1504674900247-0877df9cc836") center/cover fixed;
+        }
+
+        @media(max-width:900px){
+            .layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="page">
+
+    <h1>🍽 Food Recommendations</h1>
+
+    <!-- SEARCH -->
+    <div class="search-bar">
+        <input type="text" id="place" placeholder="Search place (Chennai, Bangalore...)">
+        <button onclick="searchFood()">Search</button>
+    </div>
+
+    <div class="layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+
+            <h3>Category</h3>
+            <label><input type="checkbox" value="restaurant" class="filter"> Restaurant</label>
+            <label><input type="checkbox" value="cafe" class="filter"> Cafe</label>
+            <label><input type="checkbox" value="bakery" class="filter"> Bakery</label>
+
+            <h3>Meal</h3>
+            <label><input type="checkbox" value="breakfast" class="filter"> Breakfast</label>
+            <label><input type="checkbox" value="lunch" class="filter"> Lunch</label>
+            <label><input type="checkbox" value="dinner" class="filter"> Dinner</label>
+
+            <h3>Cuisine</h3>
+            <label><input type="checkbox" value="indian" class="filter"> Indian</label>
+            <label><input type="checkbox" value="chinese" class="filter"> Chinese</label>
+            <label><input type="checkbox" value="italian" class="filter"> Italian</label>
+
+        </div>
+
+        <!-- RESULTS -->
+        <div class="results">
+            <div id="foodList" class="grid"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const foods = [
+{
+    name:"Anjappar Restaurant",
+    rating:4.5,
+    cuisine:"indian",
+    price:"₹300-₹800",
+    type:"restaurant",
+    meal:"lunch",
+    city:"chennai",
+    img:"https://images.unsplash.com/photo-1600891964599-f61ba0e24092"
+},
+{
+    name:"Cafe Coffee Day",
+    rating:4.2,
+    cuisine:"italian",
+    price:"₹200-₹500",
+    type:"cafe",
+    meal:"breakfast",
+    city:"chennai",
+    img:"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085"
+},
+{
+    name:"Hot Chips Bakery",
+    rating:4.0,
+    cuisine:"indian",
+    price:"₹100-₹300",
+    type:"bakery",
+    meal:"snacks",
+    city:"chennai",
+    img:"https://images.unsplash.com/photo-1509440159596-0249088772ff"
+},
+{
+    name:"Beijing Bites",
+    rating:4.3,
+    cuisine:"chinese",
+    price:"₹400-₹900",
+    type:"restaurant",
+    meal:"dinner",
+    city:"chennai",
+    img:"https://images.unsplash.com/photo-1562967916-eb82221dfb92"
+}
+];
+
+function searchFood(){
+    const place = document.getElementById("place").value.toLowerCase();
+    const selectedFilters = Array.from(document.querySelectorAll(".filter:checked"))
+                                .map(f => f.value);
+
+    const list = document.getElementById("foodList");
+    list.innerHTML = "";
+
+    const results = foods.filter(f => {
+        return f.city.includes(place) &&
+        (selectedFilters.length === 0 ||
+         selectedFilters.some(val =>
+            f.type === val || f.meal === val || f.cuisine === val
+         ));
+    });
+
+    if(results.length === 0){
+        list.innerHTML = "<p>No food places found</p>";
+        return;
+    }
+
+    results.forEach(f => {
+        list.innerHTML += `
+        <div class="card animate">
+            <img src="${f.img}" class="food-img">
+
+            <div class="card-body">
+                <h3>${f.name}</h3>
+                <p>⭐ ${f.rating}</p>
+                <p>${f.cuisine.toUpperCase()}</p>
+                <p>${f.price}</p>
+            </div>
+        </div>`;
+    });
+}
+</script>
+
+</body>
+</html>
