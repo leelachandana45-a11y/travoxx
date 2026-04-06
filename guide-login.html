@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guide Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+<div class="login-wrapper">
+
+    <div class="login-box">
+        <h2>🧑‍💼 Guide Login</h2>
+
+        <input type="text" placeholder="Guide ID">
+        <input type="password" placeholder="Password">
+
+        <button onclick="login()">Login</button>
+        <p>Authorized guides only</p>
+    </div>
+
+    <div class="guide-image"></div>
+
+</div>
+
+<script>
+function login() {
+
+    var guideId = document.querySelector("input[type='text']").value;
+    var password = document.querySelector("input[type='password']").value;
+
+    // Check if empty
+    if (guideId === "" || password === "") {
+        alert("⚠ Please enter Guide ID and Password!");
+        return;
+    }
+
+    // Allow login if filled
+    alert("✅ Guide Login Successful!");
+    localStorage.setItem("guideLoggedIn", "true");
+    window.location.href = "guide.html";
+}
+</script>
+
+</body>
+</html>

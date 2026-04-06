@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+<div class="login-wrapper">
+
+    <div class="login-box">
+        <h2>⚙️ Admin Login</h2>
+
+        <input type="text" placeholder="Admin Username">
+        <input type="password" placeholder="Password">
+
+        <button onclick="login()">Login</button>
+        <p>Restricted access only</p>
+    </div>
+
+    <div class="admin-image"></div>
+
+</div>
+
+<script>
+function login() {
+
+    var username = document.querySelector("input[type='text']").value;
+    var password = document.querySelector("input[type='password']").value;
+
+    // Check if empty
+    if (username === "" || password === "") {
+        alert("⚠ All fields are required!");
+        return;
+    }
+
+    // If filled → allow login
+    alert("✅ Login Successful!");
+    window.location.href = "admin.html";
+}
+</script>
+
+</body>
+</html>
