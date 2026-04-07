@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Destinations | Travox</title>
+    <link rel="stylesheet" href="destinations.css">
+    <script src="destinations.js" defer></script>
+</head>
+<body>
+
+<!-- MAIN CONTAINER -->
+<div class="container">
+
+    <h1>🌍 Explore Destinations</h1>
+    <p class="subtitle">Search city or country to explore details</p>
+
+    <!-- SEARCH BAR -->
+    <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="Search city or country..."
+        onkeyup="searchDestination()"
+    >
+
+    <!-- RESULTS -->
+    <div id="results">
+
+        <!-- ANDHRA PRADESH -->
+        <div class="card" data-name="andhra pradesh india">
+            <h2>Andhra Pradesh <span>in India</span></h2>
+
+            <p class="desc">
+                A coastal state famous for temples, beaches, and rich culture.
+            </p>
+
+            <p><b>Popular Places:</b> Tirupati, Araku Valley, Vizag</p>
+            <p><b>Best Time:</b> October – March</p>
+            <p><b>Entry Fee:</b> Mostly Free (temples may charge)</p>
+
+            <div class="safety">
+                🟢 Safe &nbsp; 🚑 Medical Nearby
+            </div>
+
+            <div class="actions">
+                <button onclick="openMap('Andhra Pradesh India')">📍 View on Map</button>
+                <button onclick="saveDestination(this)">⭐ Save</button>
+            </div>
+        </div>
+
+        <!-- DELHI -->
+        <div class="card" data-name="delhi india">
+            <h2>Delhi <span>in India</span></h2>
+
+            <p class="desc">
+                The capital city blending history, culture, and modern life.
+            </p>
+
+            <p><b>Popular Places:</b> Red Fort, India Gate, Qutub Minar</p>
+            <p><b>Best Time:</b> November – February</p>
+            <p><b>Entry Fee:</b> ₹20 – ₹600</p>
+
+            <div class="safety">
+                🟡 Moderate Safety &nbsp; ⚠️ Stay Alert at Night
+            </div>
+
+            <div class="actions">
+                <button onclick="openMap('Delhi India')">📍 View on Map</button>
+                <button onclick="saveDestination(this)">⭐ Save</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NO RESULT MESSAGE -->
+    <p id="noResult">No destination found</p>
+
+
+
+
+<!-- FLOATING RIGHT BACK BUTTON -->
+<div class="floating-back" onclick="goHome()">
+    ⬅ Home
+</div>
+
+</body>
+</html>
